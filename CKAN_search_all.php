@@ -92,9 +92,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself - echo the
 <?php
 } else {	//run script for all APIs
 	
-	$count = false;
+	$count = 0;
 	$dataset_names = [];
-	$duplicates = false;
+	$duplicates = 0;
 
 	// construct page and table header	
 	echo '<html lang="en">';
@@ -272,7 +272,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself - echo the
 	echo '</tbody></table></div></body>';
 	echo '<script type="text/javascript">
 		$(document).ready(function(){
-			$("#count").html("Total results found: '. $count .' (includes ' . $duplicates . ' highlighted duplicates");
+			$("#count").html("Total results found: '. $count .' (includes ' . $duplicates . ' highlighted duplicates)");
 		});
 		</script>';
 	echo '</html>';
