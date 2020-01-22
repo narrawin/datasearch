@@ -1,58 +1,29 @@
 <?php
 
 //	---------------------------------------------------------------------------------
-//	Json extraction utility for soil and ag data from CKAN APIs (refer json below) 
+//	Json extraction utility for soil and ag data from all CKAN APIs (refer json below) 
 //	author:		C Bahlo
 //	notes: 		most APIs don't have an api key (except VIC) 
 //				set your VIC api key in curl header options below: "apikey: XXX",
-//				set options in form		
+//				set search options in form		
 //				form self-submits and displays a table of results
-//	
+//				requires ckan_apis.json file in current dir
 //	
 //	---------------------------------------------------------------------------------
 
-$api_name = $_POST["api_name"];
-$api_url = $_POST["api_url"];
-$api_key = $_POST["api_key"];
-$rows = 1000; //$_POST["rows"];
+$rows = 1000; // is max allowed by most APIs
+
+// get user input
 $search_string = $_POST["search_string"];
 $search_api_tags = $_POST["search_api_tags"];
 $search_result_tag = $_POST["search_result_tag"];
 
+// get API details
+$json = file_get_contents("ckan_apis.json");
+$api_data = json_decode($json, true);
+$apis = $api_data['APIs'];
 
-if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the form
-
-	//	consider taking these out and using external file
-	$json = '{
-		"APIs": [{
-				"url": "https://data.nsw.gov.au/data/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://datasets.seed.nsw.gov.au/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://data.sa.gov.au/data/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://api.vic.gov.au:443/datavic/v1.2/package_search",
-				"api_key": "yes"
-			},
-			{
-				"url": "https://www.data.qld.gov.au/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://catalogue.data.wa.gov.au/api/3/action/package_search",
-				"api_key": "no"
-			}				
-		]
-	}';
-
-	$api_data = json_decode($json, true);
-	$apis = $api_data['APIs'];
+if (!isset($_POST['submit'])) { // if page is not submitted to itself - echo the form
 
 ?>
 	<html lang="en">
@@ -65,7 +36,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	</head>
 	<body>
 	<div class="container">	
-		<h2>CKAN API Search Tool - all catalogues</h2>
+		<h2>CKAN API Search Tool - search all catalogues</h2>
 		<p>Three search methods can be used: Full text search, full text with subsequent keyword filter and direct keyword search
 			Use a full text search (option 1.a), with or without additional keyword filter on that result set (option 1.b.),
 			OR use option 2. to run the direct keyword search.</p> 
@@ -78,24 +49,17 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		<p>&nbsp;</p>
 
 		<form method="post" action="<?php echo $PHP_SELF;?>">
-			<input type="hidden" name="api_url">
-			<input type="hidden" name="api_key">
-
 			<div class="row">
 				<div class="col-md-6 mb-3">
 					<label for="api_url">The following CKAN APIs will be searched:</label>
 					<ul>
-					<?php	// construct dropdown with api names
+					<?php	// construct list with api names
 						foreach($apis as $api) {
 						    echo '<li>'. $api['url'].'</li>';
 						}
 					?>
 					</ul>
 				</div>
-<!-- 				<div class="col-md-6 mb-3">
-					<label for="rows">Rows to get (max 1000)</label>
-					<input type="text" class="form-control" id="rows" name="rows" value="300"><br />
-	            </div> -->
 			</div>
 			<hr/>
 			<div class="row">
@@ -103,7 +67,6 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		            <label for="search_string">1.a. Search word (full text search)</label>
 					<input type="text" class="form-control" id="search_string" name="search_string"><br />
 	            </div>
-
 				<div class="col-md-6 mb-3">
 		            <label for="search_result_tag">1.b. Search keyword in full text search results</label>
 					<input type="text" class="form-control" id="search_result_tag" name="search_result_tag"><br />
@@ -121,24 +84,48 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 						This keyword search is case sensitive and literal and queries the API directly.</p>
 	            </div>
           	</div>
-
-
-
-<!-- 			<div class="row">
-				<div class="col-md-6 mb-3">
-		            <label for="api_key">API key</label>
-					<input type="text" class="form-control" id="api_key" name="api_key" value"66a1616a-1cb5-4657-863a-da0fc097d36e"><br />
-	            </div>
-          	</div> -->
-
 			<hr class="mb-4">
 			<input class="btn btn-warning btn-lg btn-bloc" type="submit" value="submit" name="submit">
-
 		</form>
 	</div>	
 
-	<?php
-} else {	//run script for selected API
+<?php
+} else {	//run script for all APIs
+	
+	$count = false;
+
+	// construct page and table header	
+	echo '<html lang="en">';
+	echo '<head>';
+    echo '<meta charset="utf-8">';
+    echo '<meta name="author" content="Chris Bahlo">';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">';
+	echo '<title>CKAN API query results</title>';
+	echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">';
+	echo '<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>';
+	echo '</head>';
+	echo '<body>';
+	echo '<h3>Combined search results found in all CKAN APIs</h3>';
+	echo '<h4 id="count">Working on it ....</h4>';
+	// make table with fields as required
+	echo '<div class=""><table class="table table-condensed table-bordered">';
+	echo '<tr><thead class="thead-dark">';
+	echo '<th>API</th>';
+	echo '<th>ID</th>';
+	echo '<th>Org ID</th>';
+	echo '<th>Name</th>';
+	//echo '<th>Landing page</th>';
+	echo '<th>Title</th>';
+	echo '<th>Resources:<br>type, link, created</th>';
+	echo '<th>License</th>';
+	echo '<th>Organisation</th>';
+	echo '<th>Description</th>';
+	echo '<th>tags</th>';
+	echo '<th>Spatial</th>';
+	echo '<th>Start</th>';
+	echo '<th>End</th>';
+	echo '<th>Updates</th>';
+	echo '</tr></thead><tbody>';
 
 	// construct filter to pass to API
 	$filter = "?rows=" . $rows;
@@ -159,6 +146,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 
 		// if vic ckan api, need a key, and pass in header
 		if (strpos($api_url, 'vic.gov.au') !== false) {
+			$api_key = "apikey: " . $api['api_key'];
+
 			curl_setopt_array($curl, array(
 			  CURLOPT_PORT => "443",
 			  CURLOPT_URL => $url,
@@ -174,7 +163,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			    "Cache-Control: no-cache",
 			    "Connection: keep-alive",
 			    "Host: api.vic.gov.au:443",
-			    "apikey: 66a1616a-1cb5-4657-863a-da0fc097d36e",
+			    $api_key,
 			    "cache-control: no-cache"
 			  ),
 			));
@@ -209,39 +198,6 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			$use_results_tag_filter = false;
 		}
 
-		echo '<html lang="en">';
-		echo '<head>';
-	    echo '<meta charset="utf-8">';
-	    echo '<meta name="author" content="Chris Bahlo">';
-	    echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">';
-		echo '<title>CKAN API query results</title>';
-		echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">';
-		echo '</head>';
-		echo '<body>';
-
-		echo "<h2>" . $url . "</h2>";
-		echo "<h4>Results requested: " . $rows . " || Records found in API: " . $data['result']['count'] . "</h4>";
-
-		// make table with fields as required
-		echo '<div class=""><table class="table table-condensed table-bordered">';
-		echo '<tr><thead class="thead-dark">';
-		echo '<th>#</th>';
-		echo '<th>ID</th>';
-		echo '<th>Org ID</th>';
-		echo '<th>Name</th>';
-		echo '<th>Landing page</th>';
-		echo '<th>Title</th>';
-		echo '<th>Resources:<br>type, link, created</th>';
-		echo '<th>License</th>';
-		echo '<th>Organisation</th>';
-		echo '<th>Description</th>';
-		echo '<th>tags</th>';
-		echo '<th>Spatial</th>';
-		echo '<th>Start</th>';
-		echo '<th>End</th>';
-		echo '<th>Updates</th>';
-		echo '</tr></thead><tbody>';
-
 		foreach ($datasets as $ds) {
 
 			$has_tag = false;
@@ -260,13 +216,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 
 				$count+=1;
 				echo "<tr>";
-				echo "<td>" . $count . '</td>';
+				echo "<td>" . $api['name'] . "</td>";
 				echo "<td>" . $ds['id'] . "</td>";
 				echo "<td>" . $ds['organization']['id'] . "</td>";
 				echo "<td>" . $ds['name'] . "</td>";
-				echo "<td>" . $ds['extras'][1]['value'] . "</td>"; // landing page
-			//	echo "<td>" . "" . "</td>"; // date issued - not available
-			//	echo "<td>" . "" . "</td>"; // catalog - not available
+				//echo "<td>" . $ds['extras'][1]['value'] . "</td>"; // landing page
 				echo "<td>" . $ds['title'] . '</td>';
 				
 				echo "<td><table>"; // sub-table for resources
@@ -304,10 +258,14 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 				echo "</tr>";
 			}
 		}
-
-		echo '</tbody></table></div></body></html>';
-
 	}
+	echo '</tbody></table></div></body>';
+	echo '<script type="text/javascript">
+		$(document).ready(function(){
+			$("#count").html("Total results found: '. $count .'");
+		});
+		</script>';
+	echo '</html>';
 }	
 
 ?>

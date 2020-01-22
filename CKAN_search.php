@@ -11,48 +11,20 @@
 //	
 //	---------------------------------------------------------------------------------
 
-$api_name = $_POST["api_name"];
+//$api_name = $_POST["api_name"];
 $api_url = $_POST["api_url"];
-$api_key = $_POST["api_key"];
+$api_index = $_POST["api_index"];
 $rows = $_POST["rows"];
 $search_string = $_POST["search_string"];
 $search_api_tags = $_POST["search_api_tags"];
 $search_result_tag = $_POST["search_result_tag"];
 
+// get API details
+$json = file_get_contents("ckan_apis.json");
+$api_data = json_decode($json, true);
+$apis = $api_data['APIs'];
 
 if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the form
-
-	//	consider taking these out and using external file
-	$json = '{
-		"APIs": [{
-				"url": "https://data.nsw.gov.au/data/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://datasets.seed.nsw.gov.au/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://data.sa.gov.au/data/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://api.vic.gov.au:443/datavic/v1.2/package_search",
-				"api_key": "yes"
-			},
-			{
-				"url": "https://www.data.qld.gov.au/api/3/action/package_search",
-				"api_key": "no"
-			},
-			{
-				"url": "https://catalogue.data.wa.gov.au/api/3/action/package_search",
-				"api_key": "no"
-			}				
-		]
-	}';
-
-	$api_data = json_decode($json, true);
-	$apis = $api_data['APIs'];
 
 ?>
 	<html lang="en">
@@ -62,6 +34,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Select CKAN API to query</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>'
 	</head>
 	<body>
 	<div class="container">	
@@ -79,12 +52,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 
 		<form method="post" action="<?php echo $PHP_SELF;?>">
 			<input type="hidden" name="api_url">
-			<input type="hidden" name="api_key">
+			<input type="hidden" name="api_index" id="api_index" value="0">
 
 			<div class="row">
 				<div class="col-md-6 mb-3">
-					<label for="api_url">Select a CKAN API</label>
-					<select name="api_url" id="api_url" class="custom-select d-block w-100">
+					<label for="api_selected">Select a CKAN API</label>
+					<select name="api_selected" id="api_selected" class="custom-select d-block w-100">
+					
 					<?php	// construct dropdown with api names
 						foreach($apis as $api) {
 						    echo '<option value="'. $api['url'].'">'.$api['url'].'</option>';
@@ -122,20 +96,18 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	            </div>
           	</div>
 
-
-
-<!-- 			<div class="row">
-				<div class="col-md-6 mb-3">
-		            <label for="api_key">API key</label>
-					<input type="text" class="form-control" id="api_key" name="api_key" value"66a1616a-1cb5-4657-863a-da0fc097d36e"><br />
-	            </div>
-          	</div> -->
-
 			<hr class="mb-4">
 			<input class="btn btn-warning btn-lg btn-bloc" type="submit" value="submit" name="submit">
 
 		</form>
 	</div>	
+	<script>
+		$(document).ready(function(){
+			$('#api_selected').change(function(){
+				$('#api_index').val($('option:selected',this).index());
+			});	
+		});	
+	</script>
 
 	<?php
 } else {	//run script for selected API
@@ -151,11 +123,16 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	} 
 
 	// call API
+	$api_url = $apis[$api_index]['url'];
+
 	$url = $api_url . $filter;
 	$curl = curl_init();
 
 	// if vic ckan api, need a key, and pass in header
 	if (strpos($api_url, 'vic.gov.au') !== false) {
+		
+		$api_key = "apikey: " . $apis[$api_index]['api_key'];
+
 		curl_setopt_array($curl, array(
 		  CURLOPT_PORT => "443",
 		  CURLOPT_URL => $url,
@@ -171,7 +148,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		    "Cache-Control: no-cache",
 		    "Connection: keep-alive",
 		    "Host: api.vic.gov.au:443",
-		    "apikey: 66a1616a-1cb5-4657-863a-da0fc097d36e",
+		    $api_key,
 		    "cache-control: no-cache"
 		  ),
 		));
@@ -213,19 +190,22 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
     echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">';
 	echo '<title>CKAN API query results</title>';
 	echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">';
+	echo '<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>';
 	echo '</head>';
 	echo '<body>';
 
 
-	echo "<h2>" . $url . "</h2>";
-	echo "<h4>Results requested: " . $rows . " || Records found in API: " . $data['result']['count'] . "</h4>";
-
+	echo "<h3>" . $url . "</h3>";
+	echo "<h4>Results requested: " . $rows . "</h4>";
+	echo '<h4 id="count">Working on it ....</h4>';
 	// make table with fields as required
 	//echo '<style> table {border-collapse: collapse;} table, th, td {border: 1px solid black;}</style>';
 	echo '<div class=""><table class="table table-condensed table-bordered">';
 	echo '<tr><thead class="thead-dark">';
 	echo '<th>#</th>';
 	echo '<th>ID</th>';
+	echo '<th>Org ID</th>';
+	echo '<th>Name</th>';
 	echo '<th>Landing page</th>';
 	//echo '<th>Date issued</th>';
 	//echo '<th>Catalog</th>';
@@ -261,6 +241,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			echo "<tr>";
 			echo "<td>" . $count . '</td>';
 			echo "<td>" . $ds['id'] . "</td>";
+			echo "<td>" . $ds['organization']['id'] . "</td>";
+			echo "<td>" . $ds['name'] . "</td>";
 			echo "<td>" . $ds['extras'][1]['value'] . "</td>"; // landing page
 		//	echo "<td>" . "" . "</td>"; // date issued - not available
 		//	echo "<td>" . "" . "</td>"; // catalog - not available
@@ -302,7 +284,12 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		}
 	}
 
-	echo '</tbody></table></div></body></html>';
-
+	echo '</tbody></table></div></body>';
+	echo '<script type="text/javascript">
+		$(document).ready(function(){
+			$("#count").html("Total results found: '. $count .'");
+		});
+		</script>';
+	echo '</html>';
 	}
 ?>
