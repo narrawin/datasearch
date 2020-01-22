@@ -93,6 +93,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself - echo the
 } else {	//run script for all APIs
 	
 	$count = false;
+	$dataset_names = [];
+	$duplicates = false;
 
 	// construct page and table header	
 	echo '<html lang="en">';
@@ -213,9 +215,14 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself - echo the
 
 			// if no keyword filter was specified OR if a kw filter was specified, and the keyword was present, then list current dataset
 			if ($use_results_tag_filter == false || $has_tag == true) {
-
-				$count+=1;
-				echo "<tr>";
+				
+				// if this dataset is a duplicate of one already found (by name), then mark row and increase duplicate ctr. 
+				if (in_array($ds['name'], $dataset_names)) {
+ 				   echo "<tr style='background-color:sandybrown;'>";
+ 				   $duplicates+=1;
+				} else {
+					echo "<tr>";
+				}			
 				echo "<td>" . $api['name'] . "</td>";
 				echo "<td>" . $ds['id'] . "</td>";
 				echo "<td>" . $ds['organization']['id'] . "</td>";
@@ -256,13 +263,16 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself - echo the
 				echo "<td>" . $ds['temporal_coverage_to'] . '</td>';
 				echo "<td>" . $ds['update_freq'] . '</td>';
 				echo "</tr>";
+
+				$count+=1;
+				$dataset_names[] = $ds['name']; // add name to array for later comparison
 			}
 		}
 	}
 	echo '</tbody></table></div></body>';
 	echo '<script type="text/javascript">
 		$(document).ready(function(){
-			$("#count").html("Total results found: '. $count .'");
+			$("#count").html("Total results found: '. $count .' (includes ' . $duplicates . ' highlighted duplicates");
 		});
 		</script>';
 	echo '</html>';
