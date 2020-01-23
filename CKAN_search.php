@@ -1,10 +1,10 @@
 <?php
 
 //	---------------------------------------------------------------------------------
-//	Json extraction utility for soil and ag data from CKAN APIs (refer json below) 
+//	Json extraction utility for soil and ag data from CKAN APIs specified in json file
 //	author:		C Bahlo
 //	notes: 		most APIs don't have an api key (except VIC) 
-//				set your VIC api key in curl header options below: "apikey: XXX",
+//				uses ckan_apis.json
 //				set options in form		
 //				form self-submits and displays a table of results
 //	
