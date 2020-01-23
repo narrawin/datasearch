@@ -54,60 +54,59 @@ echo "<p>Keyword filter is set to: " . $filter_for_keyword . "</p>";
 echo "<p>For results after filtering for keyword, please refer to number of datasets in table (ensure that $datasets > no of search results.</p>";
 
 //  --------- make publisher table from returned facet information  ---------
-// $facets = $data['facets'];
-// $publishers = $facets[0]['options'];
-// $totalHits = 0;
+$facets = $data['facets'];
+$publishers = $facets[0]['options'];
+$totalHits = 0;
 
-// echo "<h3>Publishers represented in search results</h3>";
-// echo '<style> table {border-collapse: collapse;} table, th, td {border: 1px solid black; vertical-align: text-top;}</style>';
-// echo '<table><tr>';
-// echo '<th>#</th>';
-// echo '<th>ID</th>';
-// echo '<th>Name</th>';
-// echo '<th>Hits</th>';
-// echo '</tr>';
+echo "<h3>Publishers represented in search results</h3>";
+echo '<style> table {border-collapse: collapse;} table, th, td {border: 1px solid black; vertical-align: text-top;}</style>';
+echo '<table><tr>';
+echo '<th>#</th>';
+echo '<th>ID</th>';
+echo '<th>Name</th>';
+echo '<th>Hits</th>';
+echo '</tr>';
 
-// foreach ($publishers as $publisher) {
-// 	$count+=1;
-// 	echo "<tr>";
-// 	echo "<td>" . $count . '</td>';
-// 	echo "<td>" . $publisher['identifier'] . "</td>";
-// 	echo "<td>" . $publisher['value'] . '</td>';
-// 	echo "<td>" . $publisher['hitCount'] . '</td>';
-// 	$totalHits = $totalHits + $publisher['hitCount'];
-// 	echo "</tr>";
-// }
+foreach ($publishers as $publisher) {
+	$count+=1;
+	echo "<tr>";
+	echo "<td>" . $count . '</td>';
+	echo "<td>" . $publisher['identifier'] . "</td>";
+	echo "<td>" . $publisher['value'] . '</td>';
+	echo "<td>" . $publisher['hitCount'] . '</td>';
+	$totalHits = $totalHits + $publisher['hitCount'];
+	echo "</tr>";
+}
 
-// echo '</table>';
-// echo "<p><b>total hits for listed publishers: " . $totalHits . "</b></p>";
-//--------------------------------------------------------------------------------------
+echo '</table>';
+echo "<p><b>total hits for listed publishers: " . $totalHits . "</b></p>";
+// --------------------------------------------------------------------------------------
+// make formats table from returned facet information  ---------
+$facets = $data['facets'];
+$formats = $facets[1]['options'];
+$totalHits = 0;
+$count = 0;
 
-//  make formats table from returned facet information  ---------
-// $facets = $data['facets'];
-// $formats = $facets[1]['options'];
-// $totalHits = 0;
-// $count = 0;
+echo "<h3>Data formats in database. If search filters for format, this is shown first in results</h3>";
+echo '<style> table {border-collapse: collapse;} table, th, td {border: 1px solid black; vertical-align: text-top;}</style>';
+echo '<table><tr>';
+echo '<th>#</th>';
+echo '<th>Name</th>';
+echo '<th>Hits</th>';
+echo '</tr>';
 
-// echo "<h3>Data formats in database. If search filters for format, this is shown first in results</h3>";
-// echo '<style> table {border-collapse: collapse;} table, th, td {border: 1px solid black; vertical-align: text-top;}</style>';
-// echo '<table><tr>';
-// echo '<th>#</th>';
-// echo '<th>Name</th>';
-// echo '<th>Hits</th>';
-// echo '</tr>';
+foreach ($formats as $format) {
+	$count+=1;
+	echo "<tr>";
+	echo "<td>" . $count . '</td>';
+	echo "<td>" . $format['value'] . '</td>';
+	echo "<td>" . $format['hitCount'] . '</td>';
+	$totalHits = $totalHits + $format['hitCount'];
+	echo "</tr>";
+}
 
-// foreach ($formats as $format) {
-// 	$count+=1;
-// 	echo "<tr>";
-// 	echo "<td>" . $count . '</td>';
-// 	echo "<td>" . $format['value'] . '</td>';
-// 	echo "<td>" . $format['hitCount'] . '</td>';
-// 	$totalHits = $totalHits + $format['hitCount'];
-// 	echo "</tr>";
-// }
-
-// echo '</table>';
-// echo "<p><b>total hits for listed formats: " . $totalHits . "</b></p>";
+echo '</table>';
+echo "<p><b>total hits for listed formats: " . $totalHits . "</b></p>";
 
 
 // --------------- make results table with fields as required ----------------------------------------
@@ -127,6 +126,7 @@ echo '<style> table {border-collapse: collapse;} table, th, td {border: 1px soli
 echo '<table><tr>';
 echo '<th>#</th>';
 echo '<th>ID</th>';
+echo '<th>Org ID</th>';
 echo '<th>Landing page</th>';
 echo '<th>Date issued</th>';
 echo '<th>Publisher</th>';
@@ -162,6 +162,7 @@ foreach ($datasets as $ds) {
 		echo "<tr>";
 		echo "<td>" . $count . '</td>';
 		echo "<td>" . $ds['identifier'] . "</td>";
+		echo "<td>" . $ds['publisher']['identifier'] . "</td>";
 		echo "<td><a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a></td>";
 		echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
 		echo "<td>" . $ds['publisher']['name'] . '</td>';		

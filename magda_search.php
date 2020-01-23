@@ -15,7 +15,7 @@ $search_string = $_POST["search_string"];
 $search_resource_type = $_POST["search_resource_type"];
 $search_tag = $_POST["search_tag"];
 
-$resource_options = array("","wms","xml","csv","pdf");
+$resource_options = array("","wms","wfs","csv","json","tiff","xml","geojson","html","arcgis","esri","kml","pdf");
 
 if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the form
 
