@@ -11,7 +11,7 @@
 //	---------------------------------------------------------------------------------
 
 $rows = $_POST["rows"];
-$search_string = $_POST["search_string"];
+$search_string = rawurlencode($_POST["search_string"]);
 $search_resource_type = $_POST["search_resource_type"];
 $search_tag = $_POST["search_tag"];
 
@@ -137,7 +137,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	echo '<body>';
 
 
-	echo "<h3>" . $url . "</h3>";
+	echo "<h3>API call: " . $url . "</h3>";
+	echo "<h4>Filtered for tag: " . $search_tag . "</h4>";
 	echo "<h4>Results requested: " . $rows . "</h4>";
 	echo '<h4 id="count">Working on it ....</h4>';
 	echo '<div class=""><table class="table table-condensed table-bordered">';

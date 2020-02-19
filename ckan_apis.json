@@ -1,33 +1,68 @@
 {
 	"APIs": [{
-			"name":"NSW",
-			"url": "https://data.nsw.gov.au/data/api/3/action/package_search",
-			"api_key": "no"
+			"name":"data.nsw.gov.au",
+			"url":"https://data.nsw.gov.au/data/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"https://data.nsw.gov.au/"
+		},
+		{
+			"name":"data.sa.gov.au",
+			"url":"https://data.sa.gov.au/data/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"https://data.sa.gov.au/"
+		},
+		{
+			"name":"data.vic.gov.au",
+			"url":"https://api.vic.gov.au:443/datavic/v1.2/package_search",
+			"api_key":"66a1616a-1cb5-4657-863a-da0fc097d36e",
+			"portal":"https://www.data.vic.gov.au/"
+		},
+		{
+			"name":"data.qld.gov.au",
+			"url":"https://www.data.qld.gov.au/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"https://www.data.qld.gov.au/"
+		},
+		{
+			"name":"data.wa.gov.au",
+			"url":"https://catalogue.data.wa.gov.au/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"https://data.wa.gov.au/"
 		},
 		{
 			"name":"SEED",
 			"url": "https://datasets.seed.nsw.gov.au/api/3/action/package_search",
-			"api_key": "no"
+			"api_key":"no",
+			"portal":"https://www.seed.nsw.gov.au/",
+			"description":"The Central Resource for Sharing and Enabling Environmental Data in NSW"
 		},
 		{
-			"name":"SA",
-			"url": "https://data.sa.gov.au/data/api/3/action/package_search",
-			"api_key": "no"
+			"name":"CeRDI",
+			"url":"http://data2.cerdi.edu.au/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"http://data2.cerdi.edu.au/"
 		},
 		{
-			"name":"VIC",
-			"url": "https://api.vic.gov.au:443/datavic/v1.2/package_search",
-			"api_key": "66a1616a-1cb5-4657-863a-da0fc097d36e"
+			"name":"AURIN",
+			"url":"https://data.aurin.org.au/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"https://data.aurin.org.au/dataset",
+			"description":"Australian Urban Research Infrastructure Network"
 		},
 		{
-			"name":"QLD",
-			"url": "https://www.data.qld.gov.au/api/3/action/package_search",
-			"api_key": "no"
+			"name":"AuScope",
+			"url":"https://geoanalytics.it.csiro.au/jdlc-geochem/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"https://www.auscope.org.au/",
+			"description":"CSIRO geoanalytics"
 		},
 		{
-			"name":"WA",
-			"url": "https://catalogue.data.wa.gov.au/api/3/action/package_search",
-			"api_key": "no"
-		}				
+			"name":"Viusalising Ballarat",
+			"url": "http://data.visualisingballarat.org.au/api/3/action/package_search",
+			"api_key":"no",
+			"portal":"http://data.visualisingballarat.org.au/dataset",
+			"description":"CSIRO geoanalytics"
+		}					
 	]
 }
+
