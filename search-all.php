@@ -118,12 +118,41 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	$data = json_decode($response, true);
 	$datasets = $data['dataSets'];
 	$count = 0;
+	$result_datasets = [];
 
 	if (strlen($search_tag)) {
 		$use_results_tag_filter = true;
 	} else {
 		$use_results_tag_filter = false;
 	}
+
+	foreach ($datasets as $ds) {	// go through datasets retrieved from magda and filter for keywords (if specified)
+
+		$has_tag = false;
+
+		if ($use_results_tag_filter == true) {
+			foreach ($ds['keywords'] as $tag) {
+				if (strpos(strtolower($tag), strtolower($search_tag)) !== false) {
+				    $has_tag = true;	// have found case-insensitive match (including part of word)
+				    break;
+				}
+			}
+		}
+		// if no keyword filter was specified OR if a kw filter was specified, and the keyword was present, then list current dataset
+		if ($use_results_tag_filter == false || $has_tag == true) {
+			$ds['api'] = 'magda';
+			$result_datasets[] = $ds;
+			$count+=1;
+		}
+	}
+
+
+// now add processing of CKAN APIs: flag where found in additional 
+
+
+
+
+
 
 	echo '<html lang="en">';
 	echo '<head>';
@@ -135,15 +164,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	echo '<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>';
 	echo '</head>';
 	echo '<body>';
-
-
 	echo "<h3>API call: " . $url . "</h3>";
 	echo "<h4>Filtered for tag: " . $search_tag . "</h4>";
 	echo "<h4>Results requested: " . $rows . "</h4>";
 	echo '<h4 id="count">Working on it ....</h4>';
 	echo '<div class=""><table class="table table-condensed table-bordered">';
 	echo '<tr><thead class="thead-dark">';
-	// echo '<th>#</th>';
+	echo '<th>API</th>';
 	echo '<th>ID</th>';
 	echo '<th>Org ID</th>';
 	echo '<th>Landing page</th>';
@@ -160,69 +187,51 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	echo '<th>Updates</th>';
 	echo '</tr></thead><tbody>';
 
-	foreach ($datasets as $ds) {
-
-		$has_tag = false;
-
-		if ($use_results_tag_filter == true) {
-			foreach ($ds['keywords'] as $tag) {
-				if (strpos(strtolower($tag), strtolower($search_tag)) !== false) {
-				    $has_tag = true;	// have found case-insensitive match (including part of word)
-				    break;
+	foreach ($result_datasets as $ds) {
+		echo "<tr>";
+		echo "<td>" . $ds['api'] . "</td>";
+		echo "<td>" . $ds['identifier'] . "</td>";
+		echo "<td>" . $ds['publisher']['identifier'] . "</td>";
+		echo "<td><a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a></td>";
+		echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
+		echo "<td>" . $ds['publisher']['name'] . '</td>';		
+		echo "<td>" . $ds['catalog'] . "</td>";
+		echo "<td>" . $ds['title'] . '</td>';
+		echo "<td><table>";
+		
+		foreach ($ds['distributions'] as $resource) {
+			$listResource = true;		// check if non-matching resources are to be filtered out
+			if ($formatFilter == true ) {
+				if (strtoupper($resource['format']) <> strtoupper($resourceType)){
+					$listResource = false;
 				}
-			}
-		}
+			} 
 
-		// if no keyword filter was specified OR if a kw filter was specified, and the keyword was present, then list current dataset
-		if ($use_results_tag_filter == false || $has_tag == true) {
-
-			$count+=1;
-			echo "<tr>";
-			// echo "<td>" . $count . '</td>';
-			echo "<td>" . $ds['identifier'] . "</td>";
-			echo "<td>" . $ds['publisher']['identifier'] . "</td>";
-			echo "<td><a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a></td>";
-			echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
-			echo "<td>" . $ds['publisher']['name'] . '</td>';		
-			echo "<td>" . $ds['catalog'] . "</td>";
-			echo "<td>" . $ds['title'] . '</td>';
-			echo "<td><table>";
-			
-			foreach ($ds['distributions'] as $resource) {
-				$listResource = true;		// check if non-matching resources are to be filtered out
-				if ($formatFilter == true ) {
-					if (strtoupper($resource['format']) <> strtoupper($resourceType)){
-						$listResource = false;
-					}
-				} 
-
-				if ($listResource == true) {
-					// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
-					if($resource['downloadURL'] <> '') {
-						$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['title'] . "</a>";
-					} else {
-						$resourceTitle = $resource['title'];
-					}
-					echo "<tr>";
-					echo "<td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td>";
-					echo "</tr>";	
+			if ($listResource == true) {
+				// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
+				if($resource['downloadURL'] <> '') {
+					$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['title'] . "</a>";
+				} else {
+					$resourceTitle = $resource['title'];
 				}
-
+				echo "<tr>";
+				echo "<td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td>";
+				echo "</tr>";	
 			}
-			echo "</table></td>";
-			echo "<td>" . $ds['description'] . '</td>';
-			echo "<td><ul>"; 
-			foreach ($ds['keywords'] as $keyword) {
-				echo "<li>" . $keyword . "</li>";
-			}
-			echo "</ul></td>";
-			echo "<td>" . $ds['spatial']['text'] . '</td>';
-			echo "<td>" . $ds['temporal']['start']['text'] . '</td>';
-			echo "<td>" . $ds['temporal']['end']['text'] . '</td>';
-			echo "<td>" . $ds['accrualPeriodicity']['text'] . '</td>';
-			echo "</tr>";
 
 		}
+		echo "</table></td>";
+		echo "<td>" . $ds['description'] . '</td>';
+		echo "<td><ul>"; 
+		foreach ($ds['keywords'] as $keyword) {
+			echo "<li>" . $keyword . "</li>";
+		}
+		echo "</ul></td>";
+		echo "<td>" . $ds['spatial']['text'] . '</td>';
+		echo "<td>" . $ds['temporal']['start']['text'] . '</td>';
+		echo "<td>" . $ds['temporal']['end']['text'] . '</td>';
+		echo "<td>" . $ds['accrualPeriodicity']['text'] . '</td>';
+		echo "</tr>";
 	}
 
 	echo '</tbody></table></div></body>';
@@ -232,5 +241,5 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		});
 		</script>';
 	echo '</html>';
-	}
+}
 ?>
