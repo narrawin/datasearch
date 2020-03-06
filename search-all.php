@@ -244,73 +244,48 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 					$rds_idx +=1;
 				}
 
-				if ($add_current_ds == true) {
+				if ($add_current_ds == true) {	// there is no entry for this dataset in magda (by id), so add it to the results array
 
 					$CKAN_ds = [];	// mt array to assemble dataset detail for current CKAN dataset, so we can append that to total results array
 
-					$CKAN_ds['api'] = '<span class="badge badge-warning">' . $api["name"] .'</span>';
+					$CKAN_ds['api'] = '<span class="badge badge-warning">' . $api["name"] .'</span>';	// mark ckan api name
 					$CKAN_ds['identifier'] = $ds['id'];
 					$CKAN_ds['title'] = $ds['title'];
+					$CKAN_ds['description'] = $ds['notes'];
+
 					// $CKAN_ds['distributions'] = $ds['resources'];
-					// $CKAN_ds['publisher']['name'] = $ds['organization']['title']
+					$CKAN_ds['publisher']['name'] = $ds['organization']['title'];
 
-					// $CKAN_ds['spatial']['text'] = $ds['spatial_coverage'];
-					// $CKAN_ds['temporal']['start']['text'] = $ds['temporal_coverage_from'];
-					// $CKAN_ds['temporal']['end']['text'] = $ds['temporal_coverage_to'];
-					// $CKAN_ds['accrualPeriodicity']['text'] = $ds['accrualPeriodicity']['text'];
+					$CKAN_ds['spatial']['text'] = $ds['spatial_coverage'];
+					$CKAN_ds['temporal']['start']['text'] = $ds['temporal_coverage_from'];
+					$CKAN_ds['temporal']['end']['text'] = $ds['temporal_coverage_to'];
+					$CKAN_ds['accrualPeriodicity']['text'] = $ds['update_freq'];
+					$CKAN_ds['license'] = $ds['license_url'];
 
-					$result_datasets[] = $CKAN_ds;	// append this to results array so we know origin is data.gov.au when we query CKAN APIs later
+					foreach ($ds['tags'] as $tag) {	
+						$CKAN_ds['keywords'][] = $tag['name'];
+					}					
+
+					$tmp_resource = [];
+
+					foreach ($ds['resources'] as $resource) {	
+
+						$tmp_resource['downloadURL'] = $resource['url'];
+						$tmp_resource['title'] = $resource['name'];
+						$tmp_resource['format'] = $resource['format'];
+
+						$CKAN_ds['distributions'][] = $tmp_resource;					
+					}
+					
+					//$CKAN_ds['landingPage'] = $ds['extras'][1]['value']; // not reliable, sometimes a different thing is stored at this element
+
+					$result_datasets[] = $CKAN_ds;	// append this CKAN entry to overall results array 
 					$count+=1;
 
 				} 
-
-
-
-				// echo "<td>" . $api['name'] . "</td>";
-				// echo "<td>" . $ds['id'] . "</td>";
-				// echo "<td>" . $ds['organization']['id'] . "</td>";
-				// echo "<td>" . $ds['name'] . "</td>";
-				// //echo "<td>" . $ds['extras'][1]['value'] . "</td>"; // landing page
-				// echo "<td>" . $ds['title'] . '</td>';
-				
-				// echo "<td><table>"; // sub-table for resources
-				// foreach ($ds['resources'] as $resource) {
-				// 	// if resource has url, link the title
-				// 	if($resource['url'] <> '') {
-				// 		$resourceTitle = "<a href='" . $resource['url'] . "'>" . $resource['name'] . "</a>";
-				// 	} else {
-				// 		$resourceTitle = $resource['name'];
-				// 	}
-				// 	echo "<tr>";
-				// 	echo "<td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['created']. "</td>";
-				// 	echo "</tr>";	
-				// }
-				// echo "</table></td>";
-				
-				// echo "<td>" . $ds['license_url'] . '</td>';
-				// echo "<td>" . $ds['organization']['title'] . '</td>';
-				// echo "<td>" . $ds['notes'] . '</td>';
-				// echo "<td>"; 
-				// foreach ($ds['tags'] as $tag) {		// list all tags and apply formatting
-				// 	if (strpos(strtolower($tag['name']), strtolower($search_result_tag)) !== false) {
-				// 	    echo "<span class='badge badge-danger'>" . $tag['name'] . "</span><br>";	// highlight tag search
-				// 	} else {
-				// 		echo "<span class='badge badge-info'>" . $tag['name'] . "</span><br>";
-				// 	}
-				// }				
-				// // not: could do similar for API tag searches, but consider that several tags may be specified, so would need to parse the input
-				// // and then compare each tag name to each specified search tag. Considering the small number of hits from thes searchesn, not worth it.
-				// echo "</td>";
-				// echo "<td>" . $ds['spatial_coverage'] . '</td>';
-				// echo "<td>" . $ds['temporal_coverage_from'] . '</td>';
-				// echo "<td>" . $ds['temporal_coverage_to'] . '</td>';
-				// echo "<td>" . $ds['update_freq'] . '</td>';
-				// echo "</tr>";
-			
 			}
 		}
 	}
-
 
 
 
@@ -334,31 +309,33 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	echo '<tr><thead class="thead-dark">';
 	echo '<th>API</th>';
 	echo '<th>ID</th>';
-	echo '<th>Org ID</th>';
+	echo '<th>Title</th>';
+	echo '<th>Description</th>';
+	// echo '<th>Org ID</th>';
 	echo '<th>Landing page</th>';
 	echo '<th>Date issued</th>';
 	echo '<th>Publisher</th>';
 	echo '<th>Catalog</th>';
-	echo '<th>Title</th>';
 	echo '<th>Distributions</th>';
-	echo '<th>Description</th>';
 	echo '<th>Keywords</th>';
 	echo '<th>Spatial</th>';
 	echo '<th>Start</th>';
 	echo '<th>End</th>';
 	echo '<th>Updates</th>';
+	echo '<th>License</th>';
 	echo '</tr></thead><tbody>';
 
 	foreach ($result_datasets as $ds) {
 		echo "<tr>";
 		echo "<td>" . $ds['api'] . "</td>";
 		echo "<td>" . $ds['identifier'] . "</td>";
-		echo "<td>" . $ds['publisher']['identifier'] . "</td>";
+		echo "<td>" . $ds['title'] . '</td>';
+		echo "<td>" . $ds['description'] . '</td>';
+		// echo "<td>" . $ds['publisher']['identifier'] . "</td>";
 		echo "<td><a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a></td>";
 		echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
 		echo "<td>" . $ds['publisher']['name'] . '</td>';		
 		echo "<td>" . $ds['catalog'] . "</td>";
-		echo "<td>" . $ds['title'] . '</td>';
 		echo "<td><table>";
 		
 		foreach ($ds['distributions'] as $resource) {
@@ -371,7 +348,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 
 			if ($listResource == true) {
 				// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
-				if($resource['downloadURL'] <> '') {
+				// if (!array_key_exists('downloadURL', $resource) {
+				// 	$resource['downloadURL'] = '';
+				// }
+
+				if(isset($resource['downloadURL'])) {
 					$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['title'] . "</a>";
 				} else {
 					$resourceTitle = $resource['title'];
@@ -383,7 +364,6 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 
 		}
 		echo "</table></td>";
-		echo "<td>" . $ds['description'] . '</td>';
 		echo "<td><ul>"; 
 		foreach ($ds['keywords'] as $keyword) {
 			echo "<li>" . $keyword . "</li>";
@@ -393,6 +373,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		echo "<td>" . $ds['temporal']['start']['text'] . '</td>';
 		echo "<td>" . $ds['temporal']['end']['text'] . '</td>';
 		echo "<td>" . $ds['accrualPeriodicity']['text'] . '</td>';
+		echo "<td>" . $ds['license'] . '</td>';
 		echo "</tr>";
 	}
 
