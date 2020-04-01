@@ -24,18 +24,25 @@ $json = file_get_contents("ckan_apis.json");
 $api_data = json_decode($json, true);
 $CKAN_apis = $api_data['APIs'];
 
-if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the form
-
+// construct header
 ?>
 	<html lang="en">
 	<head>
     <meta charset="utf-8">
     <meta name="author" content="Chris Bahlo">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>Magda API search</title>
+	<title>Magda+CKAN API search tool</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>'
+	<style>
+		.badge-success {color: black;}
+	</style>
 	</head>
+
+
+<?php
+if (!isset($_POST['submit'])) { // if page is not submitted, show the form
+?>
 	<body>
 	<div class="container">	
 		<h2>Magda & CKAN API Search Tool</h2>
@@ -45,12 +52,10 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			There will probably be a number of false positives.
 			Adding a keyword filter to the full text search perform a case-insensitive search including partial matches in the keyword field.
 			This is suggested to reduce the number of false positives. This must be a single word.</p>
-
 		<p>&nbsp;</p>
+		<hr/>
 
 		<form method="post" action="<?php echo $PHP_SELF;?>">
-
-			<hr/>
 			<div class="row">
 				<div class="col-md-6 mb-3">
 		            <label for="search_string">1.a. Search word (full text search)</label>
@@ -69,9 +74,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		</form>
 	</div>	
 
-	<?php
+<?php
 } else {	//run queries and display in a web page
-
 
 // First run query on Magda API
 
@@ -140,8 +144,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	}
 
 
-// start processing of CKAN APIs ------------------------------------------------
-//	to do: flag where found in additional 
+// start processing of CKAN APIs as per json file ------------------------------------------------
 
 	// construct filter to pass to API
 	$filter = "?rows=" . $rows;
@@ -180,7 +183,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			    "cache-control: no-cache"
 			  ),
 			));
-		} else {	// all othe CKAN apis don't need a key
+		} else {	// all other CKAN apis don't need a key
 			curl_setopt_array($curl, array(
 			  CURLOPT_URL => $url,
 			  CURLOPT_RETURNTRANSFER => true,
@@ -236,7 +239,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 
 					if (strpos($already_found['identifier'], $ds['id']) !== false) { // if the id of the curr CKAN ds is the same as one already in the list, don't add again.
 						//echo $result_datasets[$rds_idx]['api'] . " .. + " . '<span class="badge badge-warning">' . $api["name"] .'</span>' . "<br>";
-						$result_datasets[$rds_idx]['api'] = $result_datasets[$rds_idx]['api'] . '<span class="badge badge-warning">' . $api["name"] .'</span>';
+						$result_datasets[$rds_idx]['api'] = $result_datasets[$rds_idx]['api'] . ' <span class="badge badge-warning">' . $api["name"] .'</span>';
 						$add_current_ds = false;
 						break;
 					}
@@ -285,20 +288,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 				} 
 			}
 		}
-	}
+	}	// end processing of CKAN APIs ---------------------------------------------------
 
-
-
-// end processing of CKAN APIs ---------------------------------------------------
-	echo '<html lang="en">';
-	echo '<head>';
-    echo '<meta charset="utf-8">';
-    echo '<meta name="author" content="Chris Bahlo">';
-    echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">';
-	echo '<title>CKAN API query results</title>';
-	echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">';
-	echo '<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>';
-	echo '</head>';
+	// construct results table from $result_datasets array
 
 	echo '<body>';
 	echo "<h3>Query of data.gov.au and various CKAN instances</h3>";
@@ -383,6 +375,10 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			$("#count").html("Total results found: '. $count .'");
 		});
 		</script>';
-	echo '</html>';
-}
+
+}	// finished fetching results and displaying
+
 ?>
+
+</body>
+</html>
