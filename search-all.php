@@ -319,8 +319,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	echo '<th>Start</th>';
 	echo '<th>End</th>';
 	echo '<th>Updates</th>';
-	echo '<th>License</th>';
 	echo '<th>Distributions</th>';
+	echo '<th>License/s</th>';
 	echo '</tr></thead><tbody>';
 
 	foreach ($result_datasets as $ds) {
@@ -353,13 +353,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		echo "<td>" . $ds['temporal']['start']['text'] . '</td>';
 		echo "<td>" . $ds['temporal']['end']['text'] . '</td>';
 		echo "<td>" . $ds['accrualPeriodicity']['text'] . '</td>';
-		echo "<td>" . $ds['license'] . '</td>';
-
-		if ($spreadsheet_format == "on") {	//	show list of formats only (no subtable so it looks better in a spreadsheet)
+		
+		$licences = array();
+		$dists = array();
+		
+		if ($spreadsheet_format == "on") {	//	show list of formats only (no subtable so it works in a spreadsheet)
 
 			echo "<td>";	
-			$dists = array();
-
 			foreach ($ds['distributions'] as $resource) {
 				$listResource = true;		// check if non-matching resources are to be filtered out
 				if ($formatFilter == true ) {
@@ -377,6 +377,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					}
 
 					$dists[] = $resourceTitle;
+					if (!in_array($resource['license']['name'], $licences)) {  // add resource licence unless already included
+						$licences[] = $resource['license']['name'];
+					}
 				}
 			}
 
@@ -404,18 +407,20 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 						} else {
 							$resourceTitle = $resource['title'];
 						}
-						echo "<tr>";
-						echo "<td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td>";
-						echo "</tr>";	
+						
+						if (!in_array($resource['license']['name'], $licences)) {  // add resource licence unless already included
+							$licences[] = $resource['license']['name'];
+						}
+						echo "<tr><td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td></tr>";
 					}
-
 				}
 			echo "</table></td>";
-
 		}
 
-
-
+		if ($ds['license'] == ""){	//	if there was no licence at dataset level, get per resource licence info (Magda)
+			$ds['license'] = implode(", ", $licences);
+		}
+		echo "<td>" . $ds['license'] . '</td>';
 		echo "</tr>";
 
 	}
