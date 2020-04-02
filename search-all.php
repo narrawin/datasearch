@@ -15,6 +15,7 @@ $rows = 1000;
 $search_string = rawurlencode($_POST["search_string"]);
 //$search_resource_type = $_POST["search_resource_type"];
 $search_tag = $_POST["search_tag"];
+$spreadsheet_format = $_POST["spreadsheet_format"];
 
 // need to decide whether to keep this in, which means I need to run it on CKAN APIs as well, also consider getting full list of formats
 //$resource_options = array("","wms","wfs","csv","json","tiff","xml","geojson","html","arcgis","esri","kml","pdf");
@@ -35,7 +36,7 @@ $CKAN_apis = $api_data['APIs'];
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>'
 	<style>
-		.badge-success {color: black;}
+		.badge-success .badge-info {color: black;}
 	</style>
 	</head>
 
@@ -67,6 +68,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					<input type="text" class="form-control" id="search_tag" name="search_tag"><br />
 	            </div>
           	</div>
+			<div class="form-check">
+				<input type="checkbox" class="form-check-input" id="spreadsheet_format" name="spreadsheet_format"><br />
+	            <label class="form-check-label" for="spreadsheet_format">Format abbreviated output for spreadsheet</label>
+	        </div>
+
           	<hr/>
 			<input class="btn btn-warning btn-lg btn-bloc" type="submit" value="submit" name="submit">
 			<p>&nbsp;</p>
@@ -308,13 +314,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	echo '<th>Date issued</th>';
 	echo '<th>Publisher</th>';
 	echo '<th>Catalog</th>';
-	echo '<th>Distributions</th>';
 	echo '<th>Keywords</th>';
 	echo '<th>Spatial</th>';
 	echo '<th>Start</th>';
 	echo '<th>End</th>';
 	echo '<th>Updates</th>';
 	echo '<th>License</th>';
+	echo '<th>Distributions</th>';
 	echo '</tr></thead><tbody>';
 
 	foreach ($result_datasets as $ds) {
@@ -328,45 +334,90 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
 		echo "<td>" . $ds['publisher']['name'] . '</td>';		
 		echo "<td>" . $ds['catalog'] . "</td>";
-		echo "<td><table>";
-		
-		foreach ($ds['distributions'] as $resource) {
-			$listResource = true;		// check if non-matching resources are to be filtered out
-			if ($formatFilter == true ) {
-				if (strtoupper($resource['format']) <> strtoupper($resourceType)){
-					$listResource = false;
-				}
-			} 
 
-			if ($listResource == true) {
-				// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
-				// if (!array_key_exists('downloadURL', $resource) {
-				// 	$resource['downloadURL'] = '';
-				// }
+		// echo "<td><ul>"; // show keywords as list
+		// foreach ($ds['keywords'] as $keyword) {
+		// 	echo "<li>" . $keyword . "</li>";
+		// }
+		// echo "</ul></td>";
 
-				if(isset($resource['downloadURL'])) {
-					$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['title'] . "</a>";
-				} else {
-					$resourceTitle = $resource['title'];
-				}
-				echo "<tr>";
-				echo "<td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td>";
-				echo "</tr>";	
-			}
+		echo "<td>"; // show keywords with comma separators
+		$kw = array();
 
-		}
-		echo "</table></td>";
-		echo "<td><ul>"; 
 		foreach ($ds['keywords'] as $keyword) {
-			echo "<li>" . $keyword . "</li>";
+			$kw[] = ' <span class="badge badge-info">' . $keyword . "</span>";
 		}
-		echo "</ul></td>";
+		echo implode(", ", $kw) . "</td>";
+
 		echo "<td>" . $ds['spatial']['text'] . '</td>';
 		echo "<td>" . $ds['temporal']['start']['text'] . '</td>';
 		echo "<td>" . $ds['temporal']['end']['text'] . '</td>';
 		echo "<td>" . $ds['accrualPeriodicity']['text'] . '</td>';
 		echo "<td>" . $ds['license'] . '</td>';
+
+		if ($spreadsheet_format == "on") {	//	show list of formats only (no subtable so it looks better in a spreadsheet)
+
+			echo "<td>";	
+			$dists = array();
+
+			foreach ($ds['distributions'] as $resource) {
+				$listResource = true;		// check if non-matching resources are to be filtered out
+				if ($formatFilter == true ) {
+					if (strtoupper($resource['format']) <> strtoupper($resourceType)){
+						$listResource = false;
+					}
+				} 
+
+				if ($listResource == true) {
+
+					if(isset($resource['downloadURL'])) {
+						$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['format'] . "</a>";
+					} else {
+						$resourceTitle = $resource['format'];
+					}
+
+					$dists[] = $resourceTitle;
+				}
+			}
+
+			echo implode(", ", $dists) . "</td>";
+
+		} else {	//show resources as nested table with full details
+
+			echo "<td><table>";	
+				foreach ($ds['distributions'] as $resource) {
+					$listResource = true;		// check if non-matching resources are to be filtered out
+					if ($formatFilter == true ) {
+						if (strtoupper($resource['format']) <> strtoupper($resourceType)){
+							$listResource = false;
+						}
+					} 
+
+					if ($listResource == true) {
+						// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
+						// if (!array_key_exists('downloadURL', $resource) {
+						// 	$resource['downloadURL'] = '';
+						// }
+
+						if(isset($resource['downloadURL'])) {
+							$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['title'] . "</a>";
+						} else {
+							$resourceTitle = $resource['title'];
+						}
+						echo "<tr>";
+						echo "<td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td>";
+						echo "</tr>";	
+					}
+
+				}
+			echo "</table></td>";
+
+		}
+
+
+
 		echo "</tr>";
+
 	}
 
 	echo '</tbody></table></div></body>';
