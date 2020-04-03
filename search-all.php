@@ -36,7 +36,7 @@ $CKAN_apis = $api_data['APIs'];
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>'
 	<style>
-		.badge-success .badge-info {color: black;}
+		.badge-success, .badge-info {color: black;}
 	</style>
 	</head>
 
@@ -328,7 +328,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		echo "<td>" . $ds['api'] . "</td>";
 		echo "<td>" . $ds['identifier'] . "</td>";
 		echo "<td>" . $ds['title'] . '</td>';
-		echo "<td>" . $ds['description'] . '</td>';
+		echo "<td>" . strip_tags($ds['description']) . '</td>';
 		// echo "<td>" . $ds['publisher']['identifier'] . "</td>";
 		echo "<td><a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a></td>";
 		echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
