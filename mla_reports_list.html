@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MLA Reports</title>
+  <!-- <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css"> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+  <div class="container">
+  <h2>MLA reports available from MLA API</h2>
+  <p>Blue buttons: request a raw MLA Report. This uses the report GUID to call the MLA report straight from the MLA API, which will show the report payload as unformatted XML, but can be useful to check on whether the server is online (see ResponseStatus and ResponseError).<br> Green buttons: the Show Payload link passes the GUID into another PHP script, which parses the XML content and shows it as readable table. <br>NOTE: since the elements vary between the different reports, this currently only works for some reports and that option is disabled for now.</p>
+  <table id="reportlist" class="table table-striped">
+
+  </table>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+  <script>
+    
+   $.ajax({
+     type: 'GET',
+     url: 'http://statistics.mla.com.au/ReportApi/GetReportList',
+      success: function (data) {
+        
+        let reports = data.ReturnValue;
+        
+        // let output = '<tr><th>' + reports.length + ' Reports available</th><th>GUID</th><th>MLA report</th><th>Report content</th></tr>';        
+        let output = '<tr><th>' + reports.length + ' Reports available</th><th>GUID</th><th>MLA report</th></tr>';
+        
+        for ( i = 0; i < reports.length; i++) {
+          let reportLink = 'http://statistics.mla.com.au/ReportApi/RunReport?ReportGuid=' + reports[i].ReportGuid;
+          
+          //output += '<tr><td>' + reports[i].Name + '</td><td>' + reports[i].ReportGuid + '</td><td>' + '<a href=' + reportLink +' target="_blank" role="button" class="btn btn-primary">' + reportLink +'</a></td>' + '<td><a href="mla_report_sample.php?guid=' + reports[i].ReportGuid +'" target="_blank" role="button" class="btn btn-success">Run Script</a></td></tr>';
+          output += '<tr><td>' + reports[i].Name + '</td><td>' + reports[i].ReportGuid + '</td><td>'
+          + '<a href=' + reportLink +' target="_blank" role="button" class="btn btn-primary">' + reportLink +'</a></td></tr>';
+        }
+
+        document.getElementById('reportlist').innerHTML = output;
+
+     },
+     error: function (request, status, error) {
+       if (error) {
+          console.log(error);
+       }
+     }
+   });
+
+  </script>
+
+</body>
+</html>

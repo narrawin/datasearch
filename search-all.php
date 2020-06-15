@@ -321,6 +321,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	echo '<th>Updates</th>';
 	echo '<th>Distributions</th>';
 	echo '<th>License/s</th>';
+	echo '<th>Quality</th>';
 	echo '</tr></thead><tbody>';
 
 	foreach ($result_datasets as $ds) {
@@ -421,6 +422,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 			$ds['license'] = implode(", ", $licences);
 		}
 		echo "<td>" . $ds['license'] . '</td>';
+		echo "<td>" . $ds['quality'] . '</td>';
 		echo "</tr>";
 
 	}

@@ -1,31 +1,53 @@
 # datasearch
-Scripts for querying public data APIs
-
-
-### CKAN_search.php
-User can select one or more of the CKAN APIs and specify search terms and max number of results to return. Returns a html table of results and total number of datasets found, highlighting any duplicates found. This table can be copied and pasted into a spreadsheet for further processing. 
-
-
-### ckan_apis.json
-CKAN APIs as per ckan_apis.json. Name has to be unique, and needs a url and API key (so far only needed for VIC CKAN API).
-Note: if publishing this file, remove vic api key as it is a Cerdi one, and add a note for user to update file with their key.
-
-
-### magda_search.php
-Search facility for data.gov.au. Uses Magda API. User can specify search term and optional search tags(keywords). Very similar in output to CKAN search results.
-
-
-### magda_search.php
-Searches magda catalog first and then goes through CKAN instances. Marks madgda results where also found in CKAN catalogues and appends any CKAN results not found in magda catalog (work in progress).
+Scripts and files for querying Australian public data APIs. These scripts are part of my PhD project. Output from html and php scripts are html tables. These are (where possible) optimised for import into a spreadsheet for further analysis.
 
 -------------------------
 
-### other files - outdated, no longer used
+### ands-search.html
+Script that fetches dataset listing from ANDS via registry widget. See [RDA Registry Search Widget](https://documentation.ardc.edu.au/display/DOC/RDA+Registry+Search+Widget) for details. Has a modifiable results template.
+
+
+### ckan_apis.json
+JSON specification for CKAN APIs - used by scripts querying all CKAN instances. 
+Name of API has to be unique, and needs a url and API key (note: key needed for VIC CKAN API). Will run without specifying API key, but will return result set without results for that API and will give no error.
+
+
+### CKAN_search.php
+Several data catalogues are based on the [CKAN API](https://github.com/ckan/ckan). With this script, a user can select one or more of the available Australian CKAN APIs (refer to ckan_apis.json) and specify search terms and max number of results to return. Returns a html table of results and total number of datasets found, highlighting any duplicates found. This table can be copied and pasted into a spreadsheet for further processing. 
+
+
+### magda_search.php
+Data.gov.au is built on the [Magda API](https://magda.io/docs/). This script queries the magda API, a user can specify search term and optional search tags(keywords). Very similar in output to CKAN search results.
+
+### mla_reports_list.html
+[Meat & Livestock Australia](https://www.mla.com.au/) publishes market livestock reports. These are available via a public API. This script obtains a list of available reports from that API, and provides a URL to query each report. Details of API can be found [here](http://statistics.mla.com.au/Assets/MLA%20Statistics%20Database%20API%20Methodology.pdf).
+
+### rda_getRIFCS_API.php
+The [Australioan National Data Service](https://www.ands.org.au/) has several API endpoints for data searches. This is a script using the getRIFCS API, and the output is a html table. API Documentation is at [https://documentation.ardc.edu.au/display/DOC/getRIFCS].
+
+
+### search_all.php
+Searches magda catalog first and then goes through CKAN instances. Marks madgda resu(work in progress). Output is a html table of results.
+
+
+### search-csiro-api-v2.php
+[CSIRO data](https://data.csiro.au/collections/) is available via DAP Web Services and OpenAPI, details as per the [Developer Tools](https://confluence.csiro.au/display/dap/Developer+Tools) page. This script uses the OpenAPI endpoint, documentation can be found on the [CSIRO Data Access Portal Web Services](https://data.csiro.au/dap/swagger-ui.html#/) page. 
+
+
+### search-figshare-openapi.php
+[Figshare](https://figshare.com/) uses [OpenAPI](https://github.com/OAI/OpenAPI-Specification), and this script searches that catalogue, creating a html table as output.
+
+
+
+-------------------------
+
+### other files see superceded directory
 ##### CKAN_search_all.php 
 User can specify search terms. Returns table of results and number of finds. Identifies duplicates (by dataset name). 
 
-##### magda_packages.php (outdated, no longer used)
+##### magda_packages.php 
 Very basic script. User needs to specify search terms in script. All functionality now in magda_search.php. Only keeping it as it has the older code that lists rganisations and facets at start of output.
 
 
+-------------------------
 

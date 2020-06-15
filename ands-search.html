@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ANDS Search using registry widget</title>
+	<script src='//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.js'></script> 
+	<script type="text/javascript" src="//researchdata.ands.org.au/apps/assets/registry_widget/js/registry_widget_v2.js"></script>
+	<link rel="stylesheet" type="text/css" href="//researchdata.ands.org.au/apps/assets/registry_widget/css/registry_widget_v2.css" />
+	<style>
+		table, th, td {border: 1px solid black;}
+		table {
+			border-collapse: collapse; 
+			width: 100%;
+		}
+		th, td {padding: 3px;}
+	</style>
+<!-- 
+	// with bootstrap, need younger jquery, but that gives an ajax error.
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+-->
+
+</head>
+<body>
+	<h2>Fetching dataset listing from ANDS via registry widget</h2>
+	<p id="numberFound"></p>
+
+<form>
+<!-- /<input type="text" value="livestock" id="advanced_search_example"> -->
+<input type="text" value="livestock" id="advanced_search_example">
+</form>
+
+<script>
+	$('#advanced_search_example').registry_widget({
+		api_key: '5b4a0666b522',
+		mode: 'search',
+		lookup:true,
+		search: true,
+		auto_search:true,
+		search_btn_text: '<i class="icon icon-search"></i> Search',
+		result_template: '<table id="results"> {{#docs}}  <tr><td> <a href="#{{slug}}"> {{list_title}} </a> </td> <td> {{description}} </td> <td> {{id}} </td> </tr> {{/docs}} </table>', 
+	});
+
+	var x = document.getElementById("results").rows.length;
+	document.getElementById(numberFound).value = x;
+	
+</script>
+
+</body>
+</html>
+
+
+
+<!-- 
+		this was the original, have changed as we aren't useing BS
+		result_template: '<div id="accordion" class="panel-group rowidget_results"> {{#docs}} <div class="panel panel-default"> <div class="panel-heading"> <h4 class="panel-title"> <a href="#{{slug}}" data-parent="#accordion" data-toggle="collapse" class="accordion-toggle collapsed"> {{list_title}} </a> </h4> </div> <div class="panel-collapse collapse" id="{{slug}}"> <div class="panel-body"> {{description}} {{id}} </div> </div> </div> {{/docs}} </div>',  -->
+
+
