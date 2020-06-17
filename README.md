@@ -36,6 +36,10 @@ Searches magda catalog first and then goes through CKAN instances. Marks madgda 
 ## Resultset visualisation (sankey graphs)
 Can be found in the /visualise directory. The live version of [Graphs](https://narrawin.github.com/datasearch/visualise) allows the viewing of data in different ways. Data is based on a spreadsheet that summarises results of all the data searches using the above scripts as well as manual searches.
 
+This application shows the output from several data summaries based on that spreadsheet and uses the [D3.js](https://d3js.org/) library, and is based on a sample application by [subrata20011997](https://blockbuilder.org/subrata20011997/e943f89f678eb77d0c9a5c6bbc64986f). Screenshot below:
+
+![Screenshot](visualise.jpg)
+
 -------------------------
 
 ### other files see superceded directory
