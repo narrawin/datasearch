@@ -1,0 +1,66 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Chris Bahlo">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Livestock Datasearch Visualiser</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="datasetsSankey.css" >
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+  <a class="navbar-brand" href="#">Visualiser</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="https://narrawin.github.com/datasearch">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://github.com/narrawin/datasearch">GitHub</a>
+      </li>
+    </ul>
+    <ul class="navbar-right">
+      <li class="nav-item">
+        <h2 id="chartTitle">Current File</h2>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="sidebar-sticky pt-5">  
+        <h1>Livestock Datasearch Visualiser</h1>
+        <p class="lead">View the relationships in the Australian Livestock dataset search results interactively. Select another data file for a different view from the menu.</p>
+        <hr>
+        <form class="form-inline my-2 my-lg-0">
+          <select class="form-control mr-sm-2" id="dataFile" aria-label="Data file">
+            <option value="ds.csv" selected>source and search term</option>
+            <option value="duplicates.csv">test</option>
+          </select>  
+          <button type="button" class="btn btn-secondary my-2 my-sm-0" onclick="loadData();">Load data</button>
+        </form>
+      </div>
+    </nav>    
+
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <p id="chart">
+      </div>
+    </main>
+
+  </div>
+</div><!-- /.container -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script src="sankey.js"></script>
+  <script src="datasetsSankey.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+</body>
+</html>
