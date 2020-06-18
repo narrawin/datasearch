@@ -1,6 +1,9 @@
 source,target,value
-Magda,NSW,14
-Magda,CSIRO,13
-Magda,WA,20
-CSIRO,RDA,29
-Magda,RDA,20
+Magda,NSW,3
+Magda,QLD,5
+Magda,SA,56
+CSIRO,RDA,14
+Magda,RDA,29
+Magda,CSIRO,21
+RDA,QLD,2
+RDA,SA,14

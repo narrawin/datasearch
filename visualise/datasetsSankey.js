@@ -31,8 +31,11 @@ function loadData() {
   svg.selectAll('*').remove();  //  clear existig graph
   
   var dataFile = "csv/" + document.getElementById("dataFile").value;
+  if (!dataFile) {
+    alert("please select a data file!");
+  }
   
-  console.log(dataFile);
+  //console.log(dataFile);
   document.getElementById("chartTitle").innerHTML = dataFile;
 
   d3.csv(dataFile, function(error, data) {

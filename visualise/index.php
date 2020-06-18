@@ -41,8 +41,19 @@
         <hr>
         <form class="form-inline my-2 my-lg-0">
           <select class="form-control mr-sm-2" id="dataFile" aria-label="Data file">
-            <option value="ds.csv" selected>source and search term</option>
-            <option value="duplicates.csv">test</option>
+
+            <?php
+            //  load all filenames in csv directory to populate select box
+            $dir = "csv/";
+            $files = scandir($dir);
+            foreach ($files as $file) {
+              if ('.' !== $file && '..' !== $file){
+                // filter out dir entries
+                echo "<option value='" . $file . "'>" . $file . "</option>";
+              }
+            }
+            ?>
+
           </select>  
           <button type="button" class="btn btn-secondary my-2 my-sm-0" onclick="loadData();">Load data</button>
         </form>
