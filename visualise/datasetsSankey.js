@@ -35,7 +35,7 @@ function loadData() {
     alert("please select a data file!");
   }
   
-  //console.log(dataFile);
+  console.log(dataFile);
   document.getElementById("chartTitle").innerHTML = dataFile;
 
   d3.csv(dataFile, function(error, data) {
