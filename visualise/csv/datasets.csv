@@ -12,10 +12,11 @@ ABS,beef,1
 ABS,cattle,4
 ABS,fodder,0
 ABS,grazing,1
-ABS,livestock,8
-ABS,meat,2
+ABS,livestock,15
+ABS,meat,4
 ABS,pasture,2
 ABS,sheep,1
+ABS,wool,2
 CSIRO,beef,2
 CSIRO,cattle,5
 CSIRO,fodder,2
