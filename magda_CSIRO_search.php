@@ -3,7 +3,7 @@
 //	---------------------------------------------------------------------------------
 //	Json extraction utility for soil and ag data from Magda API
 //	author:		C Bahlo
-//	notes: 		calls dat.gov.au magda API
+//	notes: 		calls CSIRO Knowledgenet Magda API
 //				set options in form		
 //				form self-submits and displays a table of results
 //	
@@ -91,7 +91,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	} 
 
 	// call API
-	$url = "https://data.gov.au/api/v0/search/datasets" . $filter;
+	$url = "https://knowledgenet.co/api/v0/search/datasets" . $filter;
 	$curl = curl_init();
 
 	$curl = curl_init();
@@ -102,7 +102,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	  CURLOPT_MAXREDIRS => 10,
 	  CURLOPT_TIMEOUT => 30,
 	  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	  CURLOPT_CUSTOMREQUEST => "GET"
+	  CURLOPT_CUSTOMREQUEST => "GET",
+	  CURLOPT_SSL_VERIFYHOST => 0,
+	  CURLOPT_SSL_VERIFYPEER => 0
 	));
 
 	$response = curl_exec($curl);
@@ -130,7 +132,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
     echo '<meta charset="utf-8">';
     echo '<meta name="author" content="Chris Bahlo">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">';
-	echo '<title>data.gov.au Magda API query</title>';
+	echo '<title>Magda API (CSIRO Knowldgenet) query</title>';
 	echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">';
 	echo '<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>';
 	echo '</head>';

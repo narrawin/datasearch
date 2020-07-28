@@ -16,7 +16,7 @@ $query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%2Abeef
 //$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%22livestock%22%20OR%20%22cattle%22%20OR%20%22sheep%22%20OR%20%22grazing%22%20OR%20%22fodder%22%20OR%20%22wool%22%20OR%20%22meat%22%29";	
 //collections only, title containing livestock, cattle, sheep etc.
 
-
+//$query = "/getRIFCS?q=title_search%3A%28%2Alivestock%2A%29%20AND%20class%3A%28collection%29";
 
 // refer to: https://documentation.ardc.edu.au/display/DOC/getRIFCS
 $rowsToFetch = 10;
@@ -30,8 +30,14 @@ $apikey = "5b4a0666b522";
 $start = "&start=" . $startRow;
 $rows = "&rows=" . $rowsToFetch;
 
-$url = "https://researchdata.ands.org.au/registry/services/" . $apikey . $query . $start . $rows;
+//$url = "https://researchdata.ands.org.au/registry/services/" . $apikey . $query . $start . $rows;
 //https://researchdata.ands.org.au/registry/services/5b4a0666b522/getRIFCS?q=livestock+AND+type%3A%28dataset%29&rows=10
+
+// to use a file created from an API response run in Postman:
+//$url = "http://localhost/cb-scripts/datasearch/RDA_getExtRif_livestock.xml";
+//$url = "http://localhost/cb-scripts/datasearch/RDA_getExtRif_livestock_type=dataset.xml";
+$url = "http://localhost/cb-scripts/datasearch/RDA_getRIFCS_fodder_type=dataset.xml";
+
 
 $curl = curl_init();
 curl_setopt_array($curl, array(
@@ -62,7 +68,7 @@ $registryObjects = json_decode($json,TRUE);
 $items = ($registryObjects['registryObject']);
 var_dump($items);
 
-echo "<h2>researchdata.ands.org.au getRIFCS API (converted from XML output)</h2>";
+echo "<h2>" . $url . "</h2>";
 echo "<p>url: " . $url . "</p>";
 
 // make table with fields as required
@@ -96,7 +102,17 @@ foreach ($items as $item) {
 	echo "<tr>";
 	echo "<td>" . $count . "</td>";
 	echo "<td>RDA</td>";
-	echo "<td>" . $item['key'] . "</td>";
+	//echo "<td>" . $item['key'] . "</td>";
+	echo "<td>"; // fix: sometimes identifier is not an array
+	if (is_array($item['collection']['identifier'])) {
+		foreach ($item['collection']['identifier'] as $identifier) {
+			echo $identifier['@attributes']['type'] . '; ';
+		}
+	} else {
+		echo $item['collection']['identifier'];	
+	}	
+	echo "</td>";
+
 	echo "<td>" . $item['collection']['name']['namePart'] . "</td>";
 	if (is_array($item['collection']['description'])) {
 		echo "<td>" . $item['collection']['description'][0] . "</td>";
@@ -107,23 +123,11 @@ foreach ($items as $item) {
 	echo "<td>" . "</td>";	// date issued - not present, col for layout only
 	echo "<td>" . $item['originatingSource'] . "</td>";
 	echo "<td>" . "</td>"; // catalogue - not present, col for layout only
-	echo "<td>";
+	echo "<td>";	// subject - use for keywords
 		foreach ($item['collection']['subject'] as $subject) {
 			echo $subject . ', ';
 		}
 	echo "</td>";
-
-	// echo "<td>"; // fix: sometimes identifier is not an array
-	// if (is_array($item['collection']['identifier'])) {
-	// 	foreach ($item['collection']['identifier'] as $identifier) {
-	// 		echo $identifier . '<br> ';
-	// 	}
-	// } else {
-	// 	echo $item['collection']['identifier'];	
-	// }	
-	// echo "</td>";
-
-
 	echo "<td>"; // fix: sometimes coverage is array
 	if (is_array($item['collection']['coverage']['spatial'])) {
 		foreach ($item['collection']['coverage']['spatial'] as $spatialInfo) {

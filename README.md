@@ -4,9 +4,6 @@ Scripts for querying Australian public data APIs. These scripts are part of my P
 -------------------------
 ## Dataset search scripts and supporting files
 
-### ands-search.html
-Script that fetches dataset listing from ANDS via registry widget. See [RDA Registry Search Widget](https://documentation.ardc.edu.au/display/DOC/RDA+Registry+Search+Widget) for details. Has a modifiable results template.
-
 ### ckan_apis.json
 JSON specification for CKAN APIs - used by scripts querying all CKAN instances. 
 Name of API has to be unique, and needs a url and API key (note: key needed for VIC CKAN API). Will run without specifying API key, but will return result set without results for that API and will give no error.
@@ -20,8 +17,12 @@ Data.gov.au is built on the [Magda API](https://magda.io/docs/). This script que
 ### mla_reports_list.html
 [Meat & Livestock Australia](https://www.mla.com.au/) publishes market livestock reports. These are available via a public API. This script obtains a list of available reports from that API, and provides a URL to query each report. Details of API can be found [here](http://statistics.mla.com.au/Assets/MLA%20Statistics%20Database%20API%20Methodology.pdf).
 
-### rda_getRIFCS_API.php
-The [Australioan National Data Service](https://www.ands.org.au/) has several API endpoints for data searches. This is a script using the getRIFCS API, and the output is a html table. API Documentation is at https://documentation.ardc.edu.au/display/DOC/getRIFCS.
+### search_RDA.php
+The [Australioan National Data Service](https://www.ands.org.au/) has several API endpoints for data searches. This is a script using the getRIFCS API or the getExtRif API, and the output is a html table. Details via the [Widgets & APIs](https://documentation.ardc.edu.au/pages/viewpage.action?pageId=81988031) page at ARDC. This script is very basic, API endpoint and query parameters need to be set in the source. Not also that at times the script returns no results from the API endpoint. However, it is possible to obtain an API response (XML) via Postman, save as XML file and then use that saved file as script input to produce formatted output. Refer to comments in script.### ands-search.html
+Script that fetches dataset listing from ANDS via registry widget. See [RDA Registry Search Widget](https://documentation.ardc.edu.au/display/DOC/RDA+Registry+Search+Widget) for details. Has a modifiable results template. Very limited in returned fields. The search_RDA script produces more detailed output.
+
+### ands-search.html
+Script that fetches dataset listing from ANDS via registry widget. See [RDA Registry Search Widget](https://documentation.ardc.edu.au/display/DOC/RDA+Registry+Search+Widget) for details. Has a modifiable results template. Very limited in returned fields. The search_RDA script produces more detailed output.
 
 ### search_all.php
 Searches magda catalog first and then goes through CKAN instances. Marks madgda resu(work in progress). Output is a html table of results.
@@ -31,6 +32,9 @@ Searches magda catalog first and then goes through CKAN instances. Marks madgda 
 
 ### search-figshare-openapi.php
 [Figshare](https://figshare.com/) uses [OpenAPI](https://github.com/OAI/OpenAPI-Specification), and this script searches that catalogue, creating a html table as output.
+
+### magda_CSIRO_search.php
+Essentially the same as magda_search.php, but will query the Magda interface provided by CSIRO. Not used as the other script returns more results, and according to CSIRO documentation, the V2 OpenAPI used by the above script is the more relevant one.
 
 -------------------------
 ## Resultset visualisation (sankey graphs)
