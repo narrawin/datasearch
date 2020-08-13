@@ -1,0 +1,46 @@
+{
+	"graphs": [{
+			"name":"Licences pie chart",
+			"file":"licence-percentages.csv",
+			"chart":"pie",
+			"description":"Pie chart showing the licences as numbers and percentages as part of the unique set of livestock datasets (419)"
+		},
+		{
+			"name":"Distributions pie chart",
+			"file":"best-distribution-percentages.csv",
+			"chart":"pie",
+			"description":"Pie chart showing the most open distributions as numbers and percentages as part of the unique set of livestock datasets (419)"
+		},
+		{
+			"name":"Update frequency pie chart",
+			"file":"update-frequency-percentages.csv",
+			"chart":"pie",
+			"description":"Pie chart showing the update frequency of datasets as numbers and percentages as part of the unique set of livestock datasets (419)"
+		},
+		{
+			"name":"Licences sankey graph",
+			"file":"licences.csv",
+			"chart":"sankey",
+			"description":"Sankey chart showing the relationship between catalogues and licences. This is for 510 datasets after removing terms duplicates."
+		},
+		{
+			"name":"Duplicates sankey graph",
+			"file":"duplicates.csv",
+			"chart":"sankey",
+			"description":"Sankey chart showing the duplicate finds between catalogues. Does not show all datasets, therefore total doesn't add up to actual total finds."
+		},
+		{
+			"name":"Search terms sankey graph",
+			"file":"search-terms.csv.csv",
+			"chart":"sankey",
+			"description":"Sankey chart showing the search results by search terms in relation to catalogues. Shows all found datasets before removal of any duplicates."
+		},
+		{
+			"name":"All distributions sankey graph",
+			"file":"distributions.csv",
+			"chart":"sankey",
+			"description":"Sankey chart showing the the relationship between all available distributions and catalogues. Shows all distributions for all datasets, therefore total doesn't add up to actual total finds."
+		}				
+	]
+}
+
