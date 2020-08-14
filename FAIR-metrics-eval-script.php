@@ -5,15 +5,17 @@
 //	author:		C Bahlo
 //	inputs:		- csv file which contains a list of urls pointing to public datasets
 //				- valid ORCID ID 
-//				- FAIRMetrics collection id (defaults to 15)
 //				- test name
+//				- FAIRMetrics collection id - defaults to 15
+//				  Details here: https://fairsharing.github.io/FAIR-Evaluator-FrontEnd/#!/collections/15
+//	
 //	notes: 		form self-submits and displays a table of inputs and outputs, inputs are not checked!	
 //	
 //	NOTE:		Test inputs and outputs are shown publically at 
 //				https://fairsharing.github.io/FAIR-Evaluator-FrontEnd/#!evaluations
 //	To Do:		remove defaults from input fields
 //				input checking
-//				tease out individual test results
+//				make result table indiv.test headings read from file
 //	---------------------------------------------------------------------------------
 
 
@@ -46,6 +48,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		<p>Based on the FAIRMetrics evaluator API described at 
 			<a href="https://github.com/FAIRMetrics/Metrics/tree/master/MetricsEvaluatorCode/Ruby/fairmetrics#createnewevaluation">The FAIR Evaluator</a>
 		</p>
+		<p>  
+			<a href="https://fairsharing.github.io/FAIR-Evaluator-FrontEnd/#!/collections">Available FAIRMetrics collections</a></br>
+			Note that this tool defaults to 15, which is a set of 18 tests set up for Ag datasets.
+		</p>		
+		
 		<p>&nbsp;</p>
 		<hr/>
 
@@ -103,11 +110,29 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	echo '<th>ID</th>';
 	echo '<th>Dataset tested</th>';
 	echo '<th>Input</th>';
-	echo '<th>Output</th>';
+	echo '<th>Metrics 1</th>';
+	echo '<th>Metrics 2</th>';
+	echo '<th>Metrics 3</th>';
+	echo '<th>Metrics 4</th>';
+	echo '<th>Metrics 5</th>';
+	echo '<th>Metrics 6</th>';
+	echo '<th>Metrics 7</th>';
+	echo '<th>Metrics 8</th>';
+	echo '<th>Metrics 9</th>';
+	echo '<th>Metrics 10</th>';
+	echo '<th>Metrics 11</th>';
+	echo '<th>Metrics 12</th>';
+	echo '<th>Metrics 13</th>';
+	echo '<th>Metrics 14</th>';
+	echo '<th>Metrics 16</th>';
+	echo '<th>Metrics 18</th>';
+	echo '<th>Metrics 20</th>';
+	echo '<th>Metrics 22</th>';
 	echo '</tr></thead><tbody>';
 
 
-	foreach ($datasets as $ds) {	// go through Magda datasets and filter for keywords (if specified)
+	foreach ($datasets as $ds) {	// for each row in the source csv file, run an evaluation
+
 		$url = "https://w3id.org/FAIR_Evaluator/collections/" . $collection . "/evaluate.json";
 		$post_fields = "{\r\n    \"resource\": \"".$ds[0]."\",\r\n    \"executor\": \"".$orcid."\",\r\n    \"title\": \"".$test."\"\r\n}";
 
@@ -139,13 +164,35 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		  //echo $response;	// for testing
 		}
 
-		$evaluation_result = json_decode($response, true);
+		$evaluation = json_decode($response, true);
+		$evaluation_result = json_decode($evaluation['evaluationResult'], true);	// the result is a json string, so need to decode again
+		
+		//var_dump($evaluation_result);		
+		
+		$numtests = count($evaluation_result); 	// this depends on how many tests in the selected collection
+		//echo "number of tests: ".$numtests;
+		
+		$keys = array_keys($evaluation_result);	// need this to read they keys in the arrays in the loop below, because the test names vary
 
 		echo "<tr>";
-		echo "<td>" . $evaluation_result['@id'] . "</td>";
-		echo "<td>" . $evaluation_result['primaryTopic'] . "</td>";
-		echo "<td>" . $evaluation_result['evaluationInput'] . '</td>';
-		echo "<td>" . $evaluation_result['evaluationResult'] . "</td>";
+		echo "<td>" . $evaluation['@id'] . "</td>";
+		echo "<td>" . $evaluation['primaryTopic'] . "</td>";
+		echo "<td>" . $evaluation['evaluationInput'] . '</td>';
+		//echo "<td>" . $evaluation_result['evaluationResult'] . '</td>';
+
+		for ($i=0; $i < $numtests; $i++) {
+
+			// for each of the tests within the collection, get the result value
+			$result = "failure";
+			if ($evaluation_result[$keys[$i]][0]['http://semanticscience.org/resource/SIO_000300'][0]['@value'] == 1){
+				$result = "success";
+			}
+			
+			$result = $result;	// show as success/failure rather than  1 or 0
+			//$result = $evaluation_result[$keys[$i]][0]['http://semanticscience.org/resource/SIO_000300'][0]['@value'];
+
+			echo "<td>" . $result . "</td>";
+		}
 		echo "</tr>";
 
 	}
