@@ -37,6 +37,12 @@ Searches magda catalog first and then goes through CKAN instances. Marks madgda 
 Essentially the same as magda_search.php, but will query the Magda interface provided by CSIRO. Not used as the other script returns more results, and according to CSIRO documentation, the V2 OpenAPI used by the above script is the more relevant one.
 
 -------------------------
+## FAIR-metrics-eval-script.php
+The [FAIR Evaluation Services](https://fairsharing.github.io/FAIR-Evaluator-FrontEnd/#/!) allow the testing of datasets against a selected set of FAIR metrics. A collection called [Maturity Indicator collection for Australian Agricutural data](https://fairsharing.github.io/FAIR-Evaluator-FrontEnd/#!collections/15) was created and is the default used by this script. This collection (id 15) consists of 18 individual tests from the FAIR Evaluation Services.
+The PHP script runs a FAIR evaluation using the [FAIRMetrics API](https://github.com/FAIRMetrics/Metrics/tree/master/MetricsEvaluatorCode/Ruby/fairmetrics). It defaults to the metrics collection 15, but can be changed in the form shown. 
+Note that datasets to be evaluated need to be specified in datasets-to-check.csv. It is recommended to run less than 10 at a time, as the tests are very slow, often taking in excess of 5 minutes per dataset. A user has to specify an ORCID id and provide a title for the test.
+
+-------------------------
 ## Resultset visualisation (sankey graphs)
 Can be found in the /visualise directory. The live version of [Graphs](https://narrawin.github.com/datasearch/visualise) allows the viewing of data in different ways. Data is based on a spreadsheet that summarises results of all the data searches using the above scripts as well as manual searches.
 
