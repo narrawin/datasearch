@@ -26,7 +26,7 @@
     </ul>
     <ul class="navbar-right">
       <li class="nav-item">
-        <h2 id="chartTitle">Current File</h2>
+        <h4 id="chartTitle">Current File</h4>
       </li>
     </ul>
   </div>
@@ -37,20 +37,24 @@
     <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
       <div class="sidebar-sticky pt-5">  
         <h1>Livestock Datasearch Visualiser</h1>
-        <p class="lead">View the relationships in the Australian Livestock dataset search results interactively. Select another data file for a different view from the menu.</p>
-        <hr>
+        <p class="ds-description">View the relationships in the Australian Livestock dataset search results interactively.<br>Four different views of the dataset collection are available: dataset by search term, by duplicates, by licences and by distrubutions.</p>
+
         <form class="form-inline my-2 my-lg-0">
-          <select class="form-control mr-sm-2" id="dataFile" aria-label="Data file">
-            <!-- will be loaded from json file -->
-          </select>  
-          <button type="button" class="btn btn-secondary my-2 my-sm-0" onclick="loadData();">Load data</button>
-          <hr>
-          <p id="ds-description"></p>
+           <select class="form-control mr-sm-2" id="dataFile" aria-label="Data file">
+            <option value="search-terms.csv" selected>search term</option>
+            <option value="duplicates.csv">duplicates</option>
+            <option value="licences.csv">licences</option>
+            <option value="distributions.csv">distributions</option>
+           </select>
+          <button type="button" class="btn btn-info my-2 my-sm-0" onclick="loadData();">Load data</button>
         </form>
+        <hr>
+        <p class="ds-description">The coloured bars of the graphs always denote data catalogues on the left side. The grey lines show the relatioships to dataset characteristics, which are represented by the coloured bars on the right hand side. The numbers of datasets are indicated in brackets. The thickness of the relationship lines visually indicate the number of datasets. The actual number is displayed on mouse hover.</p>
       </div>
     </nav>    
 
     <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+      <h3 id="graph-heading"></h3>
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
         <p id="chart">
       </div>
@@ -58,10 +62,9 @@
 
   </div>
 </div><!-- /.container -->
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
   <script src="sankey.js"></script>
-  <script src="datasets.js"></script>
-
-
+  <script src="datasetsSankey.js"></script>
 </body>
 </html>

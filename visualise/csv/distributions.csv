@@ -1,44 +1,44 @@
-source,target,value,,,,,
-ABS,XLS,10,,,,,
-ABS,CSV,5,,,,,
-ABS,PDF,12,,,,,
-ABS,HTML,1,,,,,
-ABS,ABS.stat,1,,,,,
-CSIRO,data,37,,,,,
-CSIRO,software,1,,,,,
-data.wa.gov.au,HTML,1,,,,,
-data.wa.gov.au,PDF,1,,,,,
-data.wa.gov.au,DOC,1,,,,,
-data.wa.gov.au,WFS,1,,,,,
-data.wa.gov.au,WMS,1,,,,,
-data.wa.gov.au,MPK,1,,,,,
-data.wa.gov.au,SHP,1,,,,,
-data.wa.gov.au,GeoPackage,1,,,,,
-data.wa.gov.au,ArcGIS Server,1,,,,,
-Dryad,UNKNOWN,11,,,,,
-RDA,UNKNOWN,212,,,,,
-Figshare,txt,1,,,,,
-Figshare,DOC,2,,,,,
-Figshare,XLS,9,,,,,
-MLA,XML,97,,,,,
-TAS,SHP,2,,,,,
-TAS,GDB,1,,,,,
-TAS,MapInfo TAB,1,,,,,
-TAS,ArcGIS Server,1,,,,,
-TAS,UNKNOWN,7,,,,,
-VIC,WMS,1,,,,,
-VIC,SHP,3,,,,,
-magda,CSV,26,,,,,
-magda,HTML,12,,,,,
-magda,XML,47,,,,,
-magda,DOC,22,,,,,
-magda,XLS,25,,,,,
-magda,PDF,41,,,,,
-magda,Arc/Info Integer grids,1,,,,,
-magda,ArcGIS Server,4,,,,,
-magda,SHP,23,,,,,
-magda,JSON,22,,,,,
-magda,WMS,12,,,,,
-magda,WFS,9,,,,,
-magda,GEOJSON,1,,,,,
-magda,TABLEAU,1,,,,,
+source,target,value
+ABS,XLS,10
+ABS,CSV,5
+ABS,PDF,12
+ABS,HTML,1
+ABS,ABS.stat,1
+CSIRO,data,37
+CSIRO,software,1
+data.wa.gov.au,HTML,1
+data.wa.gov.au,PDF,1
+data.wa.gov.au,DOC,1
+data.wa.gov.au,WFS,1
+data.wa.gov.au,WMS,1
+data.wa.gov.au,MPK,1
+data.wa.gov.au,SHP,1
+data.wa.gov.au,GeoPackage,1
+data.wa.gov.au,ArcGIS Server,1
+Dryad,unknown,11
+RDA,unknown,212
+Figshare,txt,1
+Figshare,DOC,2
+Figshare,XLS,9
+MLA,XML,97
+TAS,SHP,2
+TAS,GDB,1
+TAS,MapInfo TAB,1
+TAS,ArcGIS Server,1
+TAS,unknown,7
+VIC,WMS,1
+VIC,SHP,3
+Magda,CSV,26
+Magda,HTML,12
+Magda,XML,47
+Magda,DOC,22
+Magda,XLS,25
+Magda,PDF,41
+Magda,Arc/Info Integer grids,1
+Magda,ArcGIS Server,4
+Magda,SHP,23
+Magda,JSON,22
+Magda,WMS,12
+Magda,WFS,9
+Magda,GEOJSON,1
+Magda,TABLEAU,1
