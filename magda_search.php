@@ -39,7 +39,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			This is suggested to reduce the number of false positives. This must be a single word.</p>
 		<p>&nbsp;</p>
 
-		<form method="post" action="<?php echo $PHP_SELF;?>">
+		<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
 
 			<div class="row">
 				<div class="col-md-6 mb-3">

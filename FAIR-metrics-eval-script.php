@@ -56,7 +56,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		<p>&nbsp;</p>
 		<hr/>
 
-		<form method="post" action="<?php echo $PHP_SELF;?>">
+		<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
 			<div class="row">
 				<div class="col-md-6 mb-3">
 		            <label for="csv">csv file to use</label>

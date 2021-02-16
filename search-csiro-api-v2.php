@@ -45,7 +45,7 @@ $start_page = 1;
 		<p>&nbsp;</p>
 		<hr/>
 
-		<form method="post" action="<?php echo $PHP_SELF;?>">
+		<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
 			<div class="row">
 				<div class="col-md-6 mb-3">
 		            <label for="search_string">Search word (full text search)</label>

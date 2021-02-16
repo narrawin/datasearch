@@ -11,8 +11,8 @@
 
 // variables to set:
 
-//$query = "/getRIFCS?q=livestock+AND+type%3A%28dataset%29";	//unrestricted search and type:(dataset)
-$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%2Abeef%2A%29";	//look for *beef" in title, collections only
+$query = "/getRIFCS?q=copper+AND+type%3A%28dataset%29";	//unrestricted search and type:(dataset)
+//$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%2Acopper%2A%29";	//look for *beef" in title, collections only
 //$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%22livestock%22%20OR%20%22cattle%22%20OR%20%22sheep%22%20OR%20%22grazing%22%20OR%20%22fodder%22%20OR%20%22wool%22%20OR%20%22meat%22%29";	
 //collections only, title containing livestock, cattle, sheep etc.
 
@@ -30,13 +30,13 @@ $apikey = "5b4a0666b522";
 $start = "&start=" . $startRow;
 $rows = "&rows=" . $rowsToFetch;
 
-//$url = "https://researchdata.ands.org.au/registry/services/" . $apikey . $query . $start . $rows;
+$url = "https://researchdata.ands.org.au/registry/services/" . $apikey . $query . $start . $rows;
 //https://researchdata.ands.org.au/registry/services/5b4a0666b522/getRIFCS?q=livestock+AND+type%3A%28dataset%29&rows=10
 
 // to use a file created from an API response run in Postman:
 //$url = "http://localhost/cb-scripts/datasearch/RDA_getExtRif_livestock.xml";
 //$url = "http://localhost/cb-scripts/datasearch/RDA_getExtRif_livestock_type=dataset.xml";
-$url = "http://localhost/cb-scripts/datasearch/RDA_getRIFCS_fodder_type=dataset.xml";
+//$url = "http://localhost/cb-scripts/datasearch/RDA_getRIFCS_fodder_type=dataset.xml";
 
 
 $curl = curl_init();

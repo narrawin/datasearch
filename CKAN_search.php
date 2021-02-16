@@ -54,7 +54,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			Partial matches are ignored. You may use multiple keywords or key phrases. This is the most restrictive of the three search methods.</p>
 		<p>&nbsp;</p>
 
-		<form method="post" action="<?php echo $PHP_SELF;?>">
+		<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
 			<input type="hidden" name="api_url">
 			<input type="hidden" name="api_index" id="api_index" value="0">
 
