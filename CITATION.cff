@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Bahlo
+    given-names: Christiane
+    orcid: https://orcid.org/0000-0003-4185-5542
+title: "Datasearch Scripts"
+version: 1.0.0
+doi: 10.5281/zenodo.4057869
+date-released: 2020-09-29
