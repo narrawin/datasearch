@@ -11,7 +11,7 @@
 
 // variables to set:
 
-$query = "/getRIFCS?q=copper+AND+type%3A%28dataset%29";	//unrestricted search and type:(dataset)
+$query = "/getRIFCS.json?q=soil+AND+type%3A%28dataset%29";	//unrestricted search and type:(dataset)
 //$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%2Acopper%2A%29";	//look for *beef" in title, collections only
 //$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%22livestock%22%20OR%20%22cattle%22%20OR%20%22sheep%22%20OR%20%22grazing%22%20OR%20%22fodder%22%20OR%20%22wool%22%20OR%20%22meat%22%29";	
 //collections only, title containing livestock, cattle, sheep etc.
@@ -58,14 +58,16 @@ curl_close($curl);
 if ($err) {
   echo "cURL Error #:" . $err;
 } else {
-  //echo $response;
+  echo $response;
 }
 
-$xml = simplexml_load_string($response);
+//$xml = simplexml_load_string($response);
 //print_r($xml);
-$json = json_encode($xml);
+//$json = json_encode($xml);
+$json = $response;
+
 $registryObjects = json_decode($json,TRUE);
-$items = ($registryObjects['registryObject']);
+$items = ($registryObjects['collection']);
 var_dump($items);
 
 echo "<h2>" . $url . "</h2>";
