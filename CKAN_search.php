@@ -19,8 +19,15 @@ $search_string = $_POST["search_string"];
 $search_api_tags = $_POST["search_api_tags"];
 $search_result_tag = $_POST["search_result_tag"];
 
-// get API details
-$json = file_get_contents("ckan_apis.json");
+// get CKAN API details from file
+$ckan_json_file = "ckan_apis_local.json"; // use "local" version which may contain api keys (not in repo)
+
+// use general json file (contains no api keys)
+if(!file_exists($ckan_json_file)) {
+	$ckan_json_file = "ckan_apis.json";
+}
+
+$json = file_get_contents($ckan_json_file);
 $api_data = json_decode($json, true);
 $apis = $api_data['APIs'];
 
