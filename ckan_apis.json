@@ -13,9 +13,9 @@
 		},
 		{
 			"name":"data.vic.gov.au",
-			"url":"https://api.vic.gov.au:443/datavic/v1.2/package_search",
-			"api_key":"66a1616a-1cb5-4657-863a-da0fc097d36e",
-			"portal":"https://www.data.vic.gov.au/"
+			"url":"https://wovg-community.gateway.prod.api.vic.gov.au/datavic/v1.2/package_search",
+			"api_key":"",
+			"portal":"https://wovg-community.gateway.prod.api.vic.gov.au"
 		},
 		{
 			"name":"data.qld.gov.au",

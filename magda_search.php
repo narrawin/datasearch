@@ -10,12 +10,9 @@
 //	
 //	---------------------------------------------------------------------------------
 
-$rows = $_POST["rows"];
-$search_string = rawurlencode($_POST["search_string"]);
-$search_resource_type = $_POST["search_resource_type"];
-$search_tag = $_POST["search_tag"];
 
 $resource_options = array("","wms","wfs","csv","json","tiff","xml","geojson","html","arcgis","esri","kml","pdf");
+$formatFilter = false;
 
 if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the form
 
@@ -80,6 +77,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	<?php
 } else {	//run script for selected API
 
+	$rows = $_POST["rows"];
+	$search_string = rawurlencode($_POST["search_string"]);
+	$search_resource_type = $_POST["search_resource_type"];
+	$search_tag = $_POST["search_tag"];
+
 	// construct filter to pass to API
 	$filter = "?limit=" . $rows;
 
@@ -91,6 +93,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	} 
 
 	// call API
+	// note: the SSL options set to false allow testing in local env without getting certificate error.
+
 	$url = "https://data.gov.au/api/v0/search/datasets" . $filter;
 	$curl = curl_init();
 
@@ -102,7 +106,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	  CURLOPT_MAXREDIRS => 10,
 	  CURLOPT_TIMEOUT => 30,
 	  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	  CURLOPT_CUSTOMREQUEST => "GET"
+	  CURLOPT_CUSTOMREQUEST => "GET",
+	  CURLOPT_SSL_VERIFYPEER => false,
+	  CURLOPT_SSL_VERIFYHOST => false
 	));
 
 	$response = curl_exec($curl);
@@ -180,10 +186,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			echo "<tr>";
 			// echo "<td>" . $count . '</td>';
 			echo "<td>" . $ds['identifier'] . "</td>";
-			echo "<td>" . $ds['publisher']['identifier'] . "</td>";
+			echo "<td>" . ($ds['publisher']['identifier'] ?? "*") . "</td>";
 			echo "<td><a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a></td>";
-			echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
-			echo "<td>" . $ds['publisher']['name'] . '</td>';		
+			//echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
+			echo "<td>" . $ds['issued'] . $ds['issued'] . "</td>";
+			echo "<td>" . ($ds['publisher']['name'] ?? "*") . '</td>';		
 			echo "<td>" . $ds['catalog'] . "</td>";
 			echo "<td>" . $ds['title'] . '</td>';
 			echo "<td><table>";
@@ -216,10 +223,10 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 				echo "<li>" . $keyword . "</li>";
 			}
 			echo "</ul></td>";
-			echo "<td>" . $ds['spatial']['text'] . '</td>';
-			echo "<td>" . $ds['temporal']['start']['text'] . '</td>';
-			echo "<td>" . $ds['temporal']['end']['text'] . '</td>';
-			echo "<td>" . $ds['accrualPeriodicity']['text'] . '</td>';
+			echo "<td>" . ($ds['spatial']['text'] ?? "*" ). '</td>';
+			echo "<td>" . ($ds['temporal']['start']['text'] ?? "*" ). '</td>';
+			echo "<td>" . ($ds['temporal']['end']['text'] ?? "*") . '</td>';
+			echo "<td>" . ($ds['accrualPeriodicity']['text']  ?? "*") . '</td>';
 			echo "</tr>";
 
 		}

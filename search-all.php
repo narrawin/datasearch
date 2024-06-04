@@ -12,16 +12,21 @@
 
 //$rows = $_POST["rows"];
 $rows = 1000;
-$search_string = rawurlencode($_POST["search_string"]);
-//$search_resource_type = $_POST["search_resource_type"];
-$search_tag = $_POST["search_tag"];
-$spreadsheet_format = $_POST["spreadsheet_format"];
+$formatFilter = false;
+
 
 // need to decide whether to keep this in, which means I need to run it on CKAN APIs as well, also consider getting full list of formats
 //$resource_options = array("","wms","wfs","csv","json","tiff","xml","geojson","html","arcgis","esri","kml","pdf");
 
 // get CKAN API details from file
-$json = file_get_contents("ckan_apis.json");
+$ckan_json_file = "ckan_apis_local.json"; // use "local" version which may contain api keys (not in repo)
+
+// use general json file (contains no api keys)
+if(!file_exists($ckan_json_file)) {
+	$ckan_json_file = "ckan_apis.json";
+}
+
+$json = file_get_contents($ckan_json_file);
 $api_data = json_decode($json, true);
 $CKAN_apis = $api_data['APIs'];
 
@@ -47,7 +52,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	<body>
 	<div class="container">	
 		<h2>Magda & CKAN API Search Tool</h2>
-		<p>This search is run on the Magda API of data.gov.au and all CKAN API instances specified in ckan_apis.json.</p>
+		<p>This search is run on the Magda API of data.gov.au and all CKAN API instances specified in the file <em><?= $ckan_json_file ?></em></em>.</p>
 		<p>Two search methods can be used: Full text search and full text with subsequent keyword filter.</p> 
 		<p>Full text search will yield the largest result set, as it returns all records where the search word found in any field.
 			There will probably be a number of false positives.
@@ -74,7 +79,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	        </div>
 
           	<hr/>
-			<input class="btn btn-warning btn-lg btn-bloc" type="submit" value="submit" name="submit">
+			<input class="btn btn-warning btn-lg btn-bloc" type="submit" value="Submit" name="submit">
 			<p>&nbsp;</p>
 			<p>Note: processing may take a little time depending on the size number of datasets found.</p>
 		</form>
@@ -82,6 +87,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 <?php
 } else {	//run queries and display in a web page
+
+	$search_string = rawurlencode($_POST["search_string"]);
+	//$search_resource_type = $_POST["search_resource_type"];
+	$search_tag = $_POST["search_tag"];
+	$spreadsheet_format = $_POST["spreadsheet_format"];
 
 // First run query on Magda API
 
@@ -105,7 +115,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	  CURLOPT_MAXREDIRS => 10,
 	  CURLOPT_TIMEOUT => 30,
 	  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	  CURLOPT_CUSTOMREQUEST => "GET"
+	  CURLOPT_CUSTOMREQUEST => "GET",
+  	  CURLOPT_SSL_VERIFYPEER => false,
+	  CURLOPT_SSL_VERIFYHOST => false
 	));
 
 	$response = curl_exec($curl);
@@ -171,33 +183,37 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 			$api_key = "apikey: " . $api['api_key'];
 
 			curl_setopt_array($curl, array(
-			  CURLOPT_PORT => "443",
-			  CURLOPT_URL => $url,
-			  CURLOPT_RETURNTRANSFER => true,
-			  CURLOPT_ENCODING => "",
-			  CURLOPT_MAXREDIRS => 10,
-			  CURLOPT_TIMEOUT => 30,
-			  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			  CURLOPT_CUSTOMREQUEST => "GET",
-			  CURLOPT_HTTPHEADER => array(
-			    "Accept: */*",
-			    "Accept-Encoding: gzip, deflate",
-			    "Cache-Control: no-cache",
-			    "Connection: keep-alive",
-			    "Host: api.vic.gov.au:443",
-			    $api_key,
-			    "cache-control: no-cache"
-			  ),
+				CURLOPT_PORT => "443",
+				CURLOPT_URL => $url,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "GET",
+				CURLOPT_HTTPHEADER => array(
+				"Accept: */*",
+				"Accept-Encoding: gzip, deflate",
+				"Cache-Control: no-cache",
+				"Connection: keep-alive",
+				"Host: api.vic.gov.au:443",
+				$api_key,
+				"cache-control: no-cache"
+				),
+				CURLOPT_SSL_VERIFYPEER => false,
+	  			CURLOPT_SSL_VERIFYHOST => false
 			));
 		} else {	// all other CKAN apis don't need a key
 			curl_setopt_array($curl, array(
-			  CURLOPT_URL => $url,
-			  CURLOPT_RETURNTRANSFER => true,
-			  CURLOPT_ENCODING => "",
-			  CURLOPT_MAXREDIRS => 10,
-			  CURLOPT_TIMEOUT => 30,
-			  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			  CURLOPT_CUSTOMREQUEST => "GET"
+				CURLOPT_URL => $url,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "GET",
+				CURLOPT_SSL_VERIFYPEER => false,
+				  CURLOPT_SSL_VERIFYHOST => false
 			));
 		}
 
@@ -207,12 +223,14 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 		if ($err) {
 		  echo "cURL Error #:" . $err;
+		  echo "\n encountered when processing: " . $api_url; 
 		} else {
 		  // echo $response;	// for testing
 		}
 
 		$data = json_decode($response, true);
-		$datasets = ($data['result']['results']);
+		//$datasets = ($data['result']['results']);
+		$datasets = isset($data['result']['results']) ? $data['result']['results'] : [];
 
 		if (strlen($search_tag)) {
 			$use_tag_filter = true;
@@ -265,11 +283,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					// $CKAN_ds['distributions'] = $ds['resources'];
 					$CKAN_ds['publisher']['name'] = $ds['organization']['title'];
 
-					$CKAN_ds['spatial']['text'] = $ds['spatial_coverage'];
-					$CKAN_ds['temporal']['start']['text'] = $ds['temporal_coverage_from'];
-					$CKAN_ds['temporal']['end']['text'] = $ds['temporal_coverage_to'];
-					$CKAN_ds['accrualPeriodicity']['text'] = $ds['update_freq'];
-					$CKAN_ds['license'] = $ds['license_url'];
+					$CKAN_ds['spatial']['text'] = ($ds['spatial_coverage'] ?? "---");
+					$CKAN_ds['temporal']['start']['text'] = ($ds['temporal_coverage_from'] ?? "---");
+					$CKAN_ds['temporal']['end']['text'] = ($ds['temporal_coverage_to'] ?? "---");
+					$CKAN_ds['accrualPeriodicity']['text'] = ($ds['update_freq'] ?? "---");
+					$CKAN_ds['license'] = ($ds['license_title'] ?? "---");
 
 					foreach ($ds['tags'] as $tag) {	
 						$CKAN_ds['keywords'][] = $tag['name'];
@@ -280,7 +298,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					foreach ($ds['resources'] as $resource) {	
 
 						$tmp_resource['downloadURL'] = $resource['url'];
-						$tmp_resource['title'] = $resource['name'];
+						$tmp_resource['title'] = ($resource['name'] ?? "---");
 						$tmp_resource['format'] = $resource['format'];
 
 						$CKAN_ds['distributions'][] = $tmp_resource;					
@@ -331,10 +349,16 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		echo "<td>" . $ds['title'] . '</td>';
 		echo "<td>" . strip_tags($ds['description']) . '</td>';
 		// echo "<td>" . $ds['publisher']['identifier'] . "</td>";
-		echo "<td><a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a></td>";
-		echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
-		echo "<td>" . $ds['publisher']['name'] . '</td>';		
-		echo "<td>" . $ds['catalog'] . "</td>";
+		echo "<td>";
+		if (isset($ds['landingPage'])) {
+			echo "<a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a>";
+		}
+		echo "</td>";
+		
+		//echo "<td>" . $ds['issued'] . isset($ds['issued']) ? date_format(date($ds['issued'],"d/m/y")) : "*" . "</td>";
+		echo "<td>" . ($ds['issued'] ?? "---") . "</td>";
+		echo "<td>" . ($ds['publisher']['name'] ?? "---") . '</td>';		
+		echo "<td>" . ($ds['catalog'] ?? "---") . "</td>";
 
 		// echo "<td><ul>"; // show keywords as list
 		// foreach ($ds['keywords'] as $keyword) {
@@ -350,45 +374,18 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		}
 		echo implode(", ", $kw) . "</td>";
 
-		echo "<td>" . $ds['spatial']['text'] . '</td>';
-		echo "<td>" . $ds['temporal']['start']['text'] . '</td>';
-		echo "<td>" . $ds['temporal']['end']['text'] . '</td>';
-		echo "<td>" . $ds['accrualPeriodicity']['text'] . '</td>';
+		echo "<td>" . ($ds['spatial']['text'] ?? "---") . '</td>';
+		echo "<td>" . ($ds['temporal']['start']['text'] ?? "---") . '</td>';
+		echo "<td>" . ($ds['temporal']['end']['text'] ?? "---") . '</td>';
+		echo "<td>" . ($ds['accrualPeriodicity']['text'] ?? "---") . '</td>';
 		
 		$licences = array();
 		$dists = array();
 		
-		if ($spreadsheet_format == "on") {	//	show list of formats only (no subtable so it works in a spreadsheet)
+		if(isset($ds['distributions'])) {
+			if ($spreadsheet_format == "on") {	//	show list of formats only (no subtable so it works in a spreadsheet)
 
-			echo "<td>";	
-			foreach ($ds['distributions'] as $resource) {
-				$listResource = true;		// check if non-matching resources are to be filtered out
-				if ($formatFilter == true ) {
-					if (strtoupper($resource['format']) <> strtoupper($resourceType)){
-						$listResource = false;
-					}
-				} 
-
-				if ($listResource == true) {
-
-					if(isset($resource['downloadURL'])) {
-						$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['format'] . "</a>";
-					} else {
-						$resourceTitle = $resource['format'];
-					}
-
-					$dists[] = $resourceTitle;
-					if (!in_array($resource['license']['name'], $licences)) {  // add resource licence unless already included
-						$licences[] = $resource['license']['name'];
-					}
-				}
-			}
-
-			echo implode(", ", $dists) . "</td>";
-
-		} else {	//show resources as nested table with full details
-
-			echo "<td><table>";	
+					
 				foreach ($ds['distributions'] as $resource) {
 					$listResource = true;		// check if non-matching resources are to be filtered out
 					if ($formatFilter == true ) {
@@ -398,34 +395,76 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					} 
 
 					if ($listResource == true) {
-						// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
-						// if (!array_key_exists('downloadURL', $resource) {
-						// 	$resource['downloadURL'] = '';
-						// }
 
 						if(isset($resource['downloadURL'])) {
-							$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['title'] . "</a>";
+							$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['format'] . "</a>";
 						} else {
-							$resourceTitle = $resource['title'];
+							$resourceTitle = $resource['format'];
 						}
-						
-						if (!in_array($resource['license']['name'], $licences)) {  // add resource licence unless already included
-							$licences[] = $resource['license']['name'];
+
+						if (!in_array($resourceTitle, $dists)) {  // add distribution already in the list
+							$dists[] = $resourceTitle;
 						}
-						echo "<tr><td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td></tr>";
+
+						if(isset($resource['license']['name'])) {
+							if (!in_array($resource['license']['name'], $licences)) {  // add resource licence unless already included
+								$licences[] = $resource['license']['name'];
+							}
+						}
+
 					}
 				}
-			echo "</table></td>";
+
+				echo "<td>" . implode(", ", $dists) . "</td>";
+				echo "<td>";
+				if ($licences) {
+					echo implode("<br>", $licences) . "<br>";	// list array if licences were attached to individual distributions
+				}
+				echo ($ds['license'] ?? "");					// licence attached to dataset
+				echo "</td>";
+
+			} else {	//show resources as nested table with full details
+
+				echo "<td><table>";	
+					foreach ($ds['distributions'] as $resource) {
+						$listResource = true;		// check if non-matching resources are to be filtered out
+						if ($formatFilter == true ) {
+							if (strtoupper($resource['format']) <> strtoupper($resourceType)){
+								$listResource = false;
+							}
+						} 
+
+						if ($listResource == true) {
+							// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
+							// if (!array_key_exists('downloadURL', $resource) {
+							// 	$resource['downloadURL'] = '';
+							// }
+
+							if(isset($resource['downloadURL'])) {
+								$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['title'] . "</a>";
+							} else {
+								$resourceTitle = $resource['title'];
+							}
+							
+							if (!in_array($resource['license']['name'], $licences)) {  // add resource licence unless already included
+								$licences[] = $resource['license']['name'];
+							}
+							echo "<tr><td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td></tr>";
+						}
+					}
+				echo "</table></td>";
+			}
+		} else { 	// distributions was mt
+
+			echo "<td>" . "***" . '</td>';
+			echo "<td>" . ($ds['license'] ?? "---") . '</td>';
+
 		}
 
-		if ($ds['license'] == ""){	//	if there was no licence at dataset level, get per resource licence info (Magda)
-			$ds['license'] = implode(", ", $licences);
-		}
-		echo "<td>" . $ds['license'] . '</td>';
-		echo "<td>" . $ds['quality'] . '</td>';
+		echo "<td>" . ($ds['quality'] ?? "---") . '</td>';
 		echo "</tr>";
 
-	}
+	} 
 
 	echo '</tbody></table></div></body>';
 	echo '<script type="text/javascript">
