@@ -1,6 +1,8 @@
 <?php
 //	---------------------------------------------------------------------------------
 //	Json extraction utility for extracting dataset listing from RDA getRIFCS API  (returns XML)
+//  refer to: https://documentation.ardc.edu.au/rda/getrifcs
+
 //	author:		C Bahlo
 //	notes: 		- see test scripts in postman 
 //				- search result is filtered for datasets (otherwise search will also giv persons, orgs etc.)
@@ -11,43 +13,55 @@
 
 // variables to set:
 
-$query = "/getRIFCS.json?q=soil+AND+type%3A%28dataset%29";	//unrestricted search and type:(dataset)
-//$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%2Acopper%2A%29";	//look for *beef" in title, collections only
-//$query = "/getRIFCS?q=class%3A%28collection%29%20AND%20title_search%3A%28%22livestock%22%20OR%20%22cattle%22%20OR%20%22sheep%22%20OR%20%22grazing%22%20OR%20%22fodder%22%20OR%20%22wool%22%20OR%20%22meat%22%29";	
-//collections only, title containing livestock, cattle, sheep etc.
+$query = "title:(*canopy*)";	
+$rows_to_fetch = 10;
+$offset = 0;
+$sort = ""; // not used, but is possibl, refer doco
 
-//$query = "/getRIFCS?q=title_search%3A%28%2Alivestock%2A%29%20AND%20class%3A%28collection%29";
+$params = urlencode("q=". $query . "&start=" . $offset . "&rows=" . $rows_to_fetch);
 
-// refer to: https://documentation.ardc.edu.au/display/DOC/getRIFCS
-$rowsToFetch = 10;
-$startRow = 0;	// zero-based
-$apikey = "5b4a0666b522";
-// note: this is the one used for Agrefed, consider a new one
+// if available, use "local" file which contains private api keys (file not in repo)
+$rda_json_file = "rda_api_local.json"; 
+
+// use general json file (contains no api keys)
+if(!file_exists($rda_json_file)) {
+	$rda_json_file = "rda_api.json";
+} 
+
+$json = file_get_contents($rda_json_file);
+$api_data = json_decode($json, true);
+$rda_api = $api_data['APIs'][0];	// array only has one el
+//var_dump($rda_api);
 
 
+if(isset($rda_api['api_key'])) {
+	$apikey = $rda_api['api_key'];
+} else {
+	echo "You need to add an RDA api key to rda_api.json!";
+	exit();
+}
 
+$url = $rda_api['url'] . $apikey . "/getRIFCS?" . $params;
 
-$start = "&start=" . $startRow;
-$rows = "&rows=" . $rowsToFetch;
-
-$url = "https://researchdata.ands.org.au/registry/services/" . $apikey . $query . $start . $rows;
-//https://researchdata.ands.org.au/registry/services/5b4a0666b522/getRIFCS?q=livestock+AND+type%3A%28dataset%29&rows=10
-
-// to use a file created from an API response run in Postman:
-//$url = "http://localhost/cb-scripts/datasearch/RDA_getExtRif_livestock.xml";
-//$url = "http://localhost/cb-scripts/datasearch/RDA_getExtRif_livestock_type=dataset.xml";
-//$url = "http://localhost/cb-scripts/datasearch/RDA_getRIFCS_fodder_type=dataset.xml";
-
+echo $url;
 
 $curl = curl_init();
 curl_setopt_array($curl, array(
-  CURLOPT_URL => $url,
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => "",
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 30,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => "GET"
+		CURLOPT_URL => $url,
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_ENCODING => "",
+		CURLOPT_MAXREDIRS => 10,
+		CURLOPT_TIMEOUT => 30,
+		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		CURLOPT_CUSTOMREQUEST => "GET",
+		CURLOPT_SSL_VERIFYPEER => false,
+		CURLOPT_SSL_VERIFYHOST => false,
+		CURLOPT_HTTPHEADER => array(
+			"Accept: */*",
+			"Accept-Encoding: gzip, deflate, br",
+			"Connection: keep-alive",
+			"Host: http://researchdata.edu.au",
+			),
 ));
 
 $response = curl_exec($curl);
@@ -56,15 +70,19 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-  echo "cURL Error #:" . $err;
+  echo "<br>cURL Error #:" . $err . "<br>";
 } else {
   echo $response;
 }
 
-//$xml = simplexml_load_string($response);
-//print_r($xml);
-//$json = json_encode($xml);
+// **** NOTE: THIS IS STILL RETURNING NOTHING ALTHOUGH THIS WORKS IN POSTMAN
+
+$xml = simplexml_load_string($response);
+print_r($xml);
+$json = json_encode($xml);
+
 $json = $response;
+
 
 $registryObjects = json_decode($json,TRUE);
 $items = ($registryObjects['collection']);

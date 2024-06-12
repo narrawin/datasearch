@@ -11,10 +11,6 @@
 //			full doco at: 	https://docs.figshare.com/
 //	---------------------------------------------------------------------------------
 
-$filter = "";
-$search_string = rawurlencode($_POST["search_string"]);
-//$search_tag = $_POST["search_tag"];	//	not implemented
-$start_page = 1;
 
 // construct header
 ?>
@@ -67,6 +63,11 @@ $start_page = 1;
 <?php
 } else {	//run queries and display in a web page
 
+	$filter = "";
+	$search_string = rawurlencode($_POST["search_string"]);
+	//$search_tag = $_POST["search_tag"];	//	not implemented
+	$start_page = 1;
+
 // Form was completed, run query on OpenAPI
 
 	if ($search_string == "") {
@@ -76,8 +77,8 @@ $start_page = 1;
 
 	// construct results table from $result_datasets array
 	echo '<body>';
-	echo "<h3>Query of data.csiro.au/dap/ws/v2</h3>";
-	echo "<h4>Query: " . $search_string. " and tag: " . $search_tag . "</h4>";
+	echo "<h3>Query run on Figshare API</h3>";
+	echo "<h4>Query: " . $search_string. "</h4>";
 	echo "<h4>Query: " . $search_string. "</h4>";
 	//echo "<h4>Results requested: " . $rows . "</h4>"; // rows are per api, so not really relevant in this context
 	echo '<h4 id="count">Working on it ....</h4>';
@@ -116,16 +117,18 @@ $start_page = 1;
 
 		$curl = curl_init();
 		curl_setopt_array($curl, array(
-		  CURLOPT_URL => $url,
-		  CURLOPT_RETURNTRANSFER => true,
-		  CURLOPT_ENCODING => "",
-		  CURLOPT_MAXREDIRS => 10,
-		  CURLOPT_TIMEOUT => 30,
-		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		  CURLOPT_CUSTOMREQUEST => "GET",
-		  CURLOPT_HTTPHEADER => array(
-		    'Accept: application/json'
-		  )
+			CURLOPT_URL => $url,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => "GET",
+			CURLOPT_HTTPHEADER => array(
+				'Accept: application/json'
+			),
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false
 		));
 
 		$response = curl_exec($curl);
@@ -162,10 +165,11 @@ $start_page = 1;
 			echo "<td>" . $ds['title'] . '</td>';
 			echo "<td>" . strip_tags($ds['description']) . "</td>";
 			echo "<td><a href='" . $ds['landingPage']['href'] . "'>" . $ds['landingPage']['href'] . "</a></td>";
-			echo "<td>" . $ds['published'] . date_format(date($ds['published'],"d/m/y")) . "</td>";
+			//echo "<td>" . $ds['published'] . date_format(date($ds['published'],"d/m/y")) . "</td>";
+			echo "<td>" . $ds['published'] . $ds['published'] . "</td>";
 			echo "<td>CSIRO</td>";		
 			echo "<td></td>";	// catalog
-			echo "<td>" . $ds['keywords'] . "</td>";
+			echo "<td>" . ($ds['keywords'] ?? "---") . "</td>";
 			echo "<td>";	
 			$coords = array();
 			foreach ($ds['spatialParameters'] as $sParm) {
@@ -174,8 +178,8 @@ $start_page = 1;
 			echo implode(", ", $coords) . "</td>";
 			
 			//echo "<td>" . $ds['spatialParameters'][2] . ", " . $ds['spatialParameters'][3] . ", " . $ds['spatialParameters'][4] . ", " . $ds['spatialParameters'][5]. ", " . $ds['spatialParameters'][1] . '</td>';
-			echo "<td>" . $ds['dataStartDate'] . "</td>";
-			echo "<td>" . $ds['dataEndDate'] . "</td>";
+			echo "<td>" . ($ds['dataStartDate'] ?? "---") . "</td>";
+			echo "<td>" . ($ds['dataEndDate'] ?? "---") . "</td>";
 			echo "<td></td>"; //updates
 			
 			echo "<td>" . $ds['collectionType'] . "</td>";

@@ -10,11 +10,8 @@
 //	
 //	---------------------------------------------------------------------------------
 
-//$rows = $_POST["rows"];
 $rows = 1000;
-$formatFilter = false;
-
-
+$formatFilter = false;	// could add this as a form option
 // need to decide whether to keep this in, which means I need to run it on CKAN APIs as well, also consider getting full list of formats
 //$resource_options = array("","wms","wfs","csv","json","tiff","xml","geojson","html","arcgis","esri","kml","pdf");
 
@@ -51,7 +48,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 ?>
 	<body>
 	<div class="container">	
-		<h2>Magda & CKAN API Search Tool</h2>
+		<h2 class="my-4">Magda & CKAN API Search Tool</h2>
 		<p>This search is run on the Magda API of data.gov.au and all CKAN API instances specified in the file <em><?= $ckan_json_file ?></em></em>.</p>
 		<p>Two search methods can be used: Full text search and full text with subsequent keyword filter.</p> 
 		<p>Full text search will yield the largest result set, as it returns all records where the search word found in any field.
@@ -88,22 +85,38 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 <?php
 } else {	//run queries and display in a web page
 
-	$search_string = rawurlencode($_POST["search_string"]);
-	//$search_resource_type = $_POST["search_resource_type"];
-	$search_tag = $_POST["search_tag"];
-	$spreadsheet_format = $_POST["spreadsheet_format"];
-
-// First run query on Magda API
+	$spreadsheet_format = ($_POST["spreadsheet_format"] ?? "off");
 
 	$filter = "?limit=" . $rows;	// construct filter (already urlencoded)
 
-	if ($search_string <> "") {
-		$filter .= "&query=" . $search_string;
-	} 
-	// if ($search_resource_type <> "") {
-	// 	$filter .= "&format=" . $search_resource_type;
-	// } 
+	if (isset($_POST["search_string"])) {
+		$search_string = $_POST["search_string"];
+		
+	} else {
+		echo "<p class='danger'>You must specify a search string!</p>";
+		exit;
+	}
 
+	$filter .= "&query=" . rawurlencode($search_string);
+
+	if (isset($_POST["search_resource_type"])) {
+		$filter .= "&format=" . $search_resource_type;
+	} 
+
+	if (isset($_POST["search_tag"])) {
+		$use_tag_filter = true;
+		$search_tag = $_POST["search_tag"];
+	} else {
+		$use_tag_filter = false;
+	}
+
+	echo '<body>';
+	echo "<h3>Query of data.gov.au and various CKAN instances</h3>";
+	echo "<h4>Query: " . $search_string. ($_POST["search_tag"] ?? " | filtered for tag: " . $search_tag) . "</h4>";
+	echo '<h4 id="count">Working on it ....</h4>';
+	
+	// First run query on Magda API
+	
 	$url = "https://data.gov.au/api/v0/search/datasets" . $filter;
 	$curl = curl_init();
 
@@ -135,12 +148,6 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	$count = 0;
 	$result_datasets = [];
 
-	if (strlen($search_tag)) {
-		$use_tag_filter = true;
-	} else {
-		$use_tag_filter = false;
-	}
-
 	foreach ($datasets as $ds) {	// go through Magda datasets and filter for keywords (if specified)
 
 		$has_tag = false;
@@ -168,7 +175,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	$filter = "?rows=" . $rows;
 
 	if ($search_string <> "") {
-		$filter .= "&q=" . $search_string;
+		$filter .= "&q=" . rawurlencode($search_string);
 	} 
 
 	foreach($CKAN_apis as $api) {
@@ -179,11 +186,10 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		$curl = curl_init();
 
 		// if vic ckan api, need a key, and pass in header
-		if (strpos($api_url, 'vic.gov.au') !== false) {
+		if (strpos($api['name'], 'vic.gov.au') !== false) {
 			$api_key = "apikey: " . $api['api_key'];
 
 			curl_setopt_array($curl, array(
-				CURLOPT_PORT => "443",
 				CURLOPT_URL => $url,
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => "",
@@ -196,7 +202,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 				"Accept-Encoding: gzip, deflate",
 				"Cache-Control: no-cache",
 				"Connection: keep-alive",
-				"Host: api.vic.gov.au:443",
+				"Host: https://wovg-community.gateway.prod.api.vic.gov.au",
 				$api_key,
 				"cache-control: no-cache"
 				),
@@ -213,7 +219,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST => "GET",
 				CURLOPT_SSL_VERIFYPEER => false,
-				  CURLOPT_SSL_VERIFYHOST => false
+				CURLOPT_SSL_VERIFYHOST => false
 			));
 		}
 
@@ -232,11 +238,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		//$datasets = ($data['result']['results']);
 		$datasets = isset($data['result']['results']) ? $data['result']['results'] : [];
 
-		if (strlen($search_tag)) {
-			$use_tag_filter = true;
-		} else {
-			$use_tag_filter = false;
-		}
+		// if (strlen($search_tag)) {
+		// 	$use_tag_filter = true;
+		// } else {
+		// 	$use_tag_filter = false;
+		// }
 
 		foreach ($datasets as $ds) {
 
@@ -298,13 +304,23 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					foreach ($ds['resources'] as $resource) {	
 
 						$tmp_resource['downloadURL'] = $resource['url'];
-						$tmp_resource['title'] = ($resource['name'] ?? "---");
-						$tmp_resource['format'] = $resource['format'];
+						//$tmp_resource['title'] = ($resource['name'] ?? "---");
+						$tmp_resource['format'] = ($resource['format'] ?? "---");
 
 						$CKAN_ds['distributions'][] = $tmp_resource;					
 					}
 					
-					//$CKAN_ds['landingPage'] = $ds['extras'][1]['value']; // not reliable, sometimes a different thing is stored at this element
+					// not reliable, extras element sometimes have harvest_url key, but not always. To see what is included, run and dump json
+					// if(isset($ds['extras'])) {
+					// 	//$CKAN_ds['landingPage'] = json_encode($ds['extras']);
+					// 	foreach ($ds['extras'] as $extra) {
+					// 		if($extra['key'] == "harvest_url") {
+					// 			$CKAN_ds['landingPage'] = $extra['value'];
+					// 		}
+					// 	}
+					// }
+
+					$CKAN_ds['landingPage'] = $api['portal'] . $ds['name'];
 
 					$result_datasets[] = $CKAN_ds;	// append this CKAN entry to overall results array 
 					$count+=1;
@@ -312,15 +328,21 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 				} 
 			}
 		}
+
 	}	// end processing of CKAN APIs ---------------------------------------------------
+
+
+	// need to convert all array elements to strings to be able to export to csv
+	// $output_file = "all_results.csv";
+	// $handle = fopen("$output_file", "w");
+	// foreach ($result_datasets as $line) {
+	// 	fputcsv($handle, $line);
+	// }
+	// fclose($handle);
 
 	// construct results table from $result_datasets array
 
-	echo '<body>';
-	echo "<h3>Query of data.gov.au and various CKAN instances</h3>";
-	echo "<h4>Query: " . $search_string. " | filtered for tag: " . $search_tag . "</h4>";
-	//echo "<h4>Results requested: " . $rows . "</h4>"; // rows are per api, so not really relevant in this context
-	echo '<h4 id="count">Working on it ....</h4>';
+
 	echo '<div class=""><table class="table table-condensed table-bordered">';
 	echo '<tr><thead class="thead-dark">';
 	echo '<th>API</th>';
@@ -369,10 +391,18 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		echo "<td>"; // show keywords with comma separators
 		$kw = array();
 
-		foreach ($ds['keywords'] as $keyword) {
-			$kw[] = ' <span class="badge badge-info">' . $keyword . "</span>";
+		if(isset($ds['keywords'])){
+			
+			$kw = array();
+
+			foreach ($ds['keywords'] as $keyword) {
+				$kw[] = ' <span class="badge badge-info">' . $keyword . "</span>";
+			}
+
+			echo implode(", ", $kw);
 		}
-		echo implode(", ", $kw) . "</td>";
+
+		echo "</td>";
 
 		echo "<td>" . ($ds['spatial']['text'] ?? "---") . '</td>';
 		echo "<td>" . ($ds['temporal']['start']['text'] ?? "---") . '</td>';
@@ -472,6 +502,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 			$("#count").html("Total results found: '. $count .'");
 		});
 		</script>';
+
 
 }	// finished fetching results and displaying
 

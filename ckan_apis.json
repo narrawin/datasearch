@@ -9,31 +9,31 @@
 			"name":"data.sa.gov.au",
 			"url":"https://data.sa.gov.au/data/api/3/action/package_search",
 			"api_key":"no",
-			"portal":"https://data.sa.gov.au/"
+			"portal":"https://data.sa.gov.au/data/dataset/"
 		},
 		{
 			"name":"data.vic.gov.au",
 			"url":"https://wovg-community.gateway.prod.api.vic.gov.au/datavic/v1.2/package_search",
 			"api_key":"",
-			"portal":"https://wovg-community.gateway.prod.api.vic.gov.au"
+			"portal":"https://discover.data.vic.gov.au/dataset/"
 		},
 		{
 			"name":"data.qld.gov.au",
 			"url":"https://www.data.qld.gov.au/api/3/action/package_search",
 			"api_key":"no",
-			"portal":"https://www.data.qld.gov.au/"
+			"portal":"https://www.data.qld.gov.au/dataset/"
 		},
 		{
 			"name":"data.wa.gov.au",
 			"url":"https://catalogue.data.wa.gov.au/api/3/action/package_search",
 			"api_key":"no",
-			"portal":"https://data.wa.gov.au/"
+			"portal":"https://catalogue.data.wa.gov.au/dataset/"
 		},
 		{
 			"name":"SEED",
 			"url": "https://datasets.seed.nsw.gov.au/api/3/action/package_search",
 			"api_key":"no",
-			"portal":"https://www.seed.nsw.gov.au/",
+			"portal":"https://datasets.seed.nsw.gov.au/dataset/",
 			"description":"The Central Resource for Sharing and Enabling Environmental Data in NSW"
 		},
 		{
@@ -46,7 +46,7 @@
 			"name":"AURIN",
 			"url":"https://data.aurin.org.au/api/3/action/package_search",
 			"api_key":"no",
-			"portal":"https://data.aurin.org.au/dataset",
+			"portal":"https://data.aurin.org.au/dataset/",
 			"description":"Australian Urban Research Infrastructure Network"
 		},
 		{
@@ -60,7 +60,7 @@
 			"name":"Viusalising Ballarat",
 			"url": "http://data.visualisingballarat.org.au/api/3/action/package_search",
 			"api_key":"no",
-			"portal":"http://data.visualisingballarat.org.au/dataset",
+			"portal":"http://data.visualisingballarat.org.au/dataset/",
 			"description":"CSIRO geoanalytics"
 		}					
 	]
