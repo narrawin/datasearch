@@ -1,8 +1,15 @@
 # datasearch
-Scripts for querying Australian public data APIs. These scripts are part of my PhD project. 
+Scripts for querying Australian public data APIs. These scripts were part of my PhD project, but I have used them for several other projects since then and have made them open source as they may be helpful to others. 
+
+Using PHP over Javascript (with fetch or axios) avoids CORS errors, as several of the APIs don't allow cross origin requests.
+
+In future, I may add the option to dump output as CSV. For the time being, I copy the html and paste it into a spreadsheet when I need to analyse the results further.
 
 -------------------------
 ## Dataset search scripts and supporting files
+
+### search_all_V2.php
+This is the latest and most complete search script. It run queries on data.gov.au, then the CSIRO Knowledgebase, and finally on all the CKAN catalogues listed in ckan_apis.json. It puts out the results in a table with improved (over the older scripts) formatting and layout. It checks for duplicate datasets based on ID and title (older scripts were by id alone). It shows the finds per repository and lists for each dataset found the repositories it was found in.
 
 ### ckan_apis.json
 JSON specification for the list of CKAN APIs to query by search_all.php - used by scripts querying all CKAN instances. 
