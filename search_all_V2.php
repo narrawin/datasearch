@@ -58,7 +58,14 @@ $CKAN_apis = $api_data['APIs'];
 		.w-150 {width:150px;}
 		.w-200 {width:200px;}
 		.w-250 {width:250px;}
-		td {margin: 2px;}
+		th:first-child, td:first-child,
+		th:nth-child(2), td:nth-child(2),
+		th:nth-child(3), td:nth-child(3),
+		{
+			position:sticky;
+			left:0;
+			background-color:grey;
+		}
 	</style>
 	</head>
 
@@ -69,7 +76,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	<body>
 	<div class="container">
 		<h2 class="my-4">Data Catalogue Search Tool</h2>
-		<p>This search is run on the Magda API of data.gov.au, the CSIRO Knowledge Network and the CKAN API instances specified in the file <em><?= $ckan_json_file ?></em></em>.</p>
+		<p>This search is run on the Magda API of data.gov.au, the CSIRO Knowledge Network and the CKAN API instances specified in the file <em><?= $ckan_json_file ?></em>.</p>
 		<p>Two search methods can be used: Full text search and full text with subsequent keyword filter.</p>
 		<p>Full text search will yield the largest result set, as it returns all records where the search word found in any field.
 			There will probably be a number of false positives.
@@ -104,6 +111,10 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 <?php
 } else {	//run queries and display in a web page
+
+	// not currently used
+	$search_resource_type = "";
+	$resourceType = "";
 
 	$spreadsheet_format = ($_POST["spreadsheet_format"] ?? "off");
 
@@ -175,16 +186,16 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 		$has_tag = false;
 
-		if ($use_tag_filter == true) {
+		if ($use_tag_filter) {
 			foreach ($ds['keywords'] as $tag) {
-				if (strpos(strtolower($tag), strtolower($search_tag)) !== false) {
+				if (str_contains(strtolower($tag), strtolower($search_tag))) {
 				    $has_tag = true;	// have found case-insensitive match (including part of word)
 				    break;
 				}
 			}
 		}
 		// if no keyword filter was specified OR if a kw filter was specified, and the keyword was present, then list current dataset
-		if ($use_tag_filter == false || $has_tag == true) {
+		if (!$use_tag_filter || $has_tag) {
 			$ds['api'] = '<span class="badge bg-success">Magda</span>';
 			$result_datasets[] = $ds;	// append this to results array so we know origin is data.gov.au when we query CKAN APIs later
 			$count+=1;
@@ -232,7 +243,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 		if ($use_tag_filter) {
 			foreach ($ds['keywords'] as $tag) {
-				if (strpos(strtolower($tag), strtolower($search_tag)) !== false) {
+				if (str_contains(strtolower($tag), strtolower($search_tag))) {
 					$has_tag = true;	// have found case-insensitive match (including part of word)
 					break;
 				}
@@ -246,9 +257,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 			$rds_idx = 0;
 
 			foreach ($result_datasets as $already_found) {
-				//echo strpos($already_found['identifier'], $ds['id']) . " -- <br>";
 
-				if (str_contains($already_found['identifier'], $ds['identifier'])) { // if the id of the curr CKAN ds is the same as one already in the list, don't add again.
+				// if the id OR nameof the curr ds is the same as one already in the list, don't add again.
+				if (str_contains($already_found['identifier'], $ds['identifier']) || str_contains($already_found['title'], $ds['title'])) {
 					$result_datasets[$rds_idx]['api'] = $result_datasets[$rds_idx]['api'] . ' <span class="badge bg-info">CSIRO KN</span>';
 					$add_current_ds = false;
 					break;
@@ -285,7 +296,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		$curl = curl_init();
 
 		// if vic ckan api, need a key, and pass in header
-		if (strpos($api['name'], 'vic.gov.au') !== false) {
+		if (str_contains($api['name'], 'vic.gov.au')) {
 			$api_key = "apikey: " . $api['api_key'];
 
 			curl_setopt_array($curl, array(
@@ -345,7 +356,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 			if ($use_tag_filter) {
 				foreach ($ds['tags'] as $tag) {
-					if (strpos(strtolower($tag['name']), strtolower($search_tag)) !== false) {
+					if (str_contains(strtolower($tag['name']), strtolower($search_tag))) {
 					    $has_tag = true;	// have found case-insensitive match (including part of word)
 					    break;
 					}
@@ -360,9 +371,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 				foreach ($result_datasets as $already_found) {
 
-					//echo strpos($already_found['identifier'], $ds['id']) . " -- <br>";
+					// if the id OR nameof the curr ds is the same as one already in the list, don't add again.
+					if (str_contains($already_found['identifier'], $ds['id']) || str_contains($already_found['title'], $ds['title'])) {
 
-					if (str_contains($already_found['identifier'], $ds['id'])) { // if the id of the curr CKAN ds is the same as one already in the list, don't add again.
 						//echo $result_datasets[$rds_idx]['api'] . " .. + " . '<span class="badge bg-warning">' . $api["name"] .'</span>' . "<br>";
 						$result_datasets[$rds_idx]['api'] = $result_datasets[$rds_idx]['api'] . ' <span class="badge bg-primary">' . $api["name"] .'</span>';
 						$add_current_ds = false;
@@ -438,71 +449,51 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	// construct results table from $result_datasets array
 
 
-	echo '<div class=""><table id="search_results_table" class="table-fixed align-text-top">';
-	echo '<thead class="bg-sky-500"><tr class="border-bottom border-info">';
+	echo '<div class="border-top border-red mt-10"><table id="search_results_table" class="table table-hover table-sm">';
+	echo '<thead class="table-dark"><tr class="border-bottom border-info">';
 	echo '<th class="w-20">API</th>';
-	echo '<th class="w-40">ID</th>';
 	echo '<th class="w-100">Title</th>';
 	echo '<th class="w-250">Description</th>';
-	// echo '<th>Org ID</th>';
-	echo '<th class="w-100">Landing page</th>';
+	echo '<th class="w-100">Keywords</th>';
 	echo '<th class="w-60">Date issued</th>';
 	echo '<th class="w-60">Publisher</th>';
+	echo '<th class="w-100">Landing page</th>';
+	echo '<th class="w-100">License/s</th>';
+	echo '<th class="w-100">Distributions</th>';
 	echo '<th class="w-60">Catalog</th>';
-	echo '<th class="w-100">Keywords</th>';
-	echo '<th class="w-800">Spatial</th>';
 	echo '<th class="w-50">Start/End</th>';
 	echo '<th class="w-40">Updates</th>';
-	echo '<th class="w-100">Distributions</th>';
-	echo '<th class="w-100">License/s</th>';
+	echo '<th class="w-800">Spatial</th>';
+	echo '<th class="w-40">ID</th>';
 	// echo '<th>Quality</th>';
 	echo '</tr></thead><tbody>';
 
 	foreach ($result_datasets as $ds) {
 		echo '<tr class="border-bottom border-info">';
 		echo "<td>" . $ds['api'] . "</td>";
-		echo "<td>" . $ds['identifier'] . "</td>";
 		echo "<td>" . $ds['title'] . '</td>';
 		echo "<td>" . strip_tags($ds['description']) . '</td>';
-		// echo "<td>" . $ds['publisher']['identifier'] . "</td>";
-		echo "<td>";
-		if (isset($ds['landingPage'])) {
-			echo "<a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a>";
+
+		echo "<td>"; // show keywords one per line
+		if(isset($ds['keywords'])){
+			echo implode("<br>", $ds['keywords']);
 		}
 		echo "</td>";
 
 		//echo "<td>" . $ds['issued'] . isset($ds['issued']) ? date_format(date($ds['issued'],"d/m/y")) : "*" . "</td>";
 		echo "<td>" . ($ds['issued'] ?? "---") . "</td>";
 		echo "<td>" . ($ds['publisher']['name'] ?? "---") . '</td>';
-		echo "<td>" . ($ds['catalog'] ?? "---") . "</td>";
 
-		// echo "<td><ul>"; // show keywords as list
-		// foreach ($ds['keywords'] as $keyword) {
-		// 	echo "<li>" . $keyword . "</li>";
-		// }
-		// echo "</ul></td>";
+		echo "<td>";
+		if (isset($ds['landingPage'])) {
 
-		echo "<td>"; // show keywords with comma separators
-		$kw = array();
-
-		if(isset($ds['keywords'])){
-			echo implode("<br>", $ds['keywords']);
-
-//			$kw = array();
-//
-//			foreach ($ds['keywords'] as $keyword) {
-//				$kw[] = ' <span class="badge bg-info">' . $keyword . "</span>";
-//			}
-//
-//			echo implode("<br>", $kw);
+			if ($spreadsheet_format == "on") {
+				echo "<a href=" . $ds['landingPage'] . "' class='btn btn-dark btn-sm'>Link</a>";
+			} else {
+				echo "<a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a>";
+			}
 		}
-
-
 		echo "</td>";
-
-		echo "<td>" . ($ds['spatial']['text'] ?? "---") . '</td>';
-		echo "<td>Start: " . ($ds['temporal']['start']['text'] ?? "---") . "<br>End: " . ($ds['temporal']['end']['text'] ?? "---") . '</td>';
-		echo "<td>" . ($ds['accrualPeriodicity']['text'] ?? "---") . '</td>';
 
 		$licences = array();
 		$dists = array();
@@ -513,13 +504,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 				foreach ($ds['distributions'] as $resource) {
 					$listResource = true;		// check if non-matching resources are to be filtered out
-					if ($formatFilter == true ) {
+					if ($formatFilter) {
 						if (strtoupper($resource['format']) <> strtoupper($resourceType)){
 							$listResource = false;
 						}
 					}
 
-					if ($listResource == true) {
+					if ($listResource) {
 
 						if(isset($resource['downloadURL'])) {
 							$resourceTitle = "<a href='" . $resource['downloadURL'] . "'>" . $resource['format'] . "</a>";
@@ -540,26 +531,28 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					}
 				}
 
-				echo "<td>" . implode(", ", $dists) . "</td>";
 				echo "<td>";
 				if ($licences) {
 					echo implode("<br>", $licences) . "<br>";	// list array if licences were attached to individual distributions
 				}
-				echo ($ds['license'] ?? "");					// licence attached to dataset
+				echo ($ds['license'] ?? "");	// licence attached to dataset
 				echo "</td>";
+
+				echo "<td>" . implode("<br>", $dists) . "</td>";
+
 
 			} else {	//show resources as nested table with full details
 
 				echo "<td><table>";
 					foreach ($ds['distributions'] as $resource) {
 						$listResource = true;		// check if non-matching resources are to be filtered out
-						if ($formatFilter == true ) {
+						if ($formatFilter) {
 							if (strtoupper($resource['format']) <> strtoupper($resourceType)){
 								$listResource = false;
 							}
 						}
 
-						if ($listResource == true) {
+						if ($listResource) {
 							// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
 							// if (!array_key_exists('downloadURL', $resource) {
 							// 	$resource['downloadURL'] = '';
@@ -577,6 +570,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 							echo "<tr><td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . $resource['license']['name'] . "</td></tr>";
 						}
 					}
+
 				echo "</table></td>";
 			}
 		} else { 	// distributions was mt
@@ -586,7 +580,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 		}
 
-		//echo "<td>" . ($ds['quality'] ?? "---") . '</td>';
+		echo "<td>" . ($ds['catalog'] ?? "---") . "</td>";
+		echo "<td>Start: " . ($ds['temporal']['start']['text'] ?? "---") . "<br>End: " . ($ds['temporal']['end']['text'] ?? "---") . '</td>';
+		echo "<td>" . ($ds['accrualPeriodicity']['text'] ?? "---") . '</td>';
+		echo "<td>" . ($ds['spatial']['text'] ?? "---") . '</td>';
+		echo "<td>" . $ds['identifier'] . "</td>";
+
+
 		echo "</tr>";
 
 	}
