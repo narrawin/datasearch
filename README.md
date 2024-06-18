@@ -9,7 +9,7 @@ In future, I hope to update all the scripts and consolidate them. I may add the 
 ## Dataset search scripts and supporting files
 
 ### search_all_V2.php
-This is the latest and most complete search script. It run queries on data.gov.au, then the CSIRO Knowledgebase, and finally on all the CKAN catalogues listed in ckan_apis.json. It puts out the results in a table with improved (over the older scripts) formatting and layout. It checks for duplicate datasets based on ID and title (older scripts were by id alone). It shows the finds per repository and lists for each dataset found the repositories it was found in. Try it out [here](https://narrawin.github.io/datasearch/search_all_V2.php)
+This is the latest and most complete search script. It run queries on data.gov.au, then the CSIRO Knowledgebase, and finally on all the CKAN catalogues listed in ckan_apis.json. It puts out the results in a table with improved (over the older scripts) formatting and layout. It checks for duplicate datasets based on ID and title (older scripts were by id alone). It shows the finds per repository and lists for each dataset found the repositories it was found in. 
 
 ### ckan_apis.json
 JSON specification for the list of CKAN APIs to query by search_all.php - used by scripts querying all CKAN instances. 
