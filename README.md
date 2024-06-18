@@ -1,15 +1,15 @@
 # datasearch
 Scripts for querying Australian public data APIs. These scripts were part of my PhD project, but I have used them for several other projects since then and have made them open source as they may be helpful to others. 
 
-Using PHP over Javascript (with fetch or axios) avoids CORS errors, as several of the APIs don't allow cross origin requests.
+Using PHP over Javascript (with fetch or axios) avoids CORS errors, as several of the APIs don't allow cross origin requests. Note that some of the scripts on the bottom of the page are a few years old now and probably need some work
 
-In future, I may add the option to dump output as CSV. For the time being, I copy the html and paste it into a spreadsheet when I need to analyse the results further.
+In future, I hope to update all the scripts and consolidate them. I may add the option to dump output as CSV. For the time being, I copy the html and paste it into a spreadsheet when I need to analyse the results further.
 
 -------------------------
 ## Dataset search scripts and supporting files
 
 ### search_all_V2.php
-This is the latest and most complete search script. It run queries on data.gov.au, then the CSIRO Knowledgebase, and finally on all the CKAN catalogues listed in ckan_apis.json. It puts out the results in a table with improved (over the older scripts) formatting and layout. It checks for duplicate datasets based on ID and title (older scripts were by id alone). It shows the finds per repository and lists for each dataset found the repositories it was found in.
+This is the latest and most complete search script. It run queries on data.gov.au, then the CSIRO Knowledgebase, and finally on all the CKAN catalogues listed in ckan_apis.json. It puts out the results in a table with improved (over the older scripts) formatting and layout. It checks for duplicate datasets based on ID and title (older scripts were by id alone). It shows the finds per repository and lists for each dataset found the repositories it was found in. Try it out [here](https://narrawin.github.io/datasearch/search_all_V2.php)
 
 ### ckan_apis.json
 JSON specification for the list of CKAN APIs to query by search_all.php - used by scripts querying all CKAN instances. 
@@ -52,7 +52,7 @@ Note that datasets to be evaluated need to be specified in datasets-to-check.csv
 
 -------------------------
 ## Resultset visualisation (sankey graphs)
-Can be found in the /visualise directory. The live version of [Graphs](https://narrawin.github.com/datasearch/visualise) allows the viewing of data in different ways. Data is based on a spreadsheet that summarises results of all the data searches using the above scripts as well as manual searches.
+Can be found in the /visualise directory. The live version of [Graphs](https://narrawin.github.io/datasearch/visualise) allows the viewing of data in different ways. Data is based on a spreadsheet that summarises results of all the data searches using the above scripts as well as manual searches.
 
 This application shows the output from several data summaries based on that spreadsheet and uses the [D3.js](https://d3js.org/) library, and is based on a sample application by [subrata20011997](https://blockbuilder.org/subrata20011997/e943f89f678eb77d0c9a5c6bbc64986f). Screenshot below:
 
