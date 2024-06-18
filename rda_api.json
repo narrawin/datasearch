@@ -1,0 +1,10 @@
+{
+	"APIs": [{
+			"name":"http://researchdata.edu.au",
+			"url":"http://researchdata.edu.au/registry/services/",
+			"api_key":"",
+			"portal":"https://researchdata.edu.au/"
+		}				
+	]
+}
+
