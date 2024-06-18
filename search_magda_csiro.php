@@ -4,10 +4,10 @@
 //	Json extraction utility for soil and ag data from Magda API
 //	author:		C Bahlo
 //	notes: 		calls CSIRO Knowledgenet Magda API
-//				set options in form		
+//				set options in form
 //				form self-submits and displays a table of results
-//	
-//	
+//
+//
 //	---------------------------------------------------------------------------------
 
 $resource_options = array("","wms","wfs","csv","json","tiff","xml","geojson","html","arcgis","esri","kml","pdf");
@@ -26,9 +26,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>'
 	</head>
 	<body>
-	<div class="container">	
+	<div class="container">
 		<h2>CSIRO (Magda) API Search Tool</h2>
-		<p>Two search methods can be used: Full text search and full text with subsequent keyword filter.</p> 
+		<p>Two search methods can be used: Full text search and full text with subsequent keyword filter.</p>
 		<p>Full text search will yield the largest result set, as it returns all records where the search word found in any field.
 			There will probably be a number of false positives.
 			Adding a keyword filter to the full text search perform a case-insensitive search including partial matches in the keyword field.
@@ -41,7 +41,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 				<div class="col-md-6 mb-3">
 					<label for="search_resource_type">Select a resource format</label>
 					<select name="search_resource_type" id="search_resource_type" class="custom-select d-block w-100">
-					
+
 					<?php	// construct dropdown with options for resource names
 						foreach($resource_options as $ro) {
 						    echo '<option value="'. $ro .'">'. $ro .'</option>';
@@ -71,7 +71,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			<input class="btn btn-warning btn-lg btn-bloc" type="submit" value="submit" name="submit">
 
 		</form>
-	</div>	
+	</div>
 
 	<?php
 } else {	//run script for selected API
@@ -86,11 +86,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 
 	if ($search_string <> "") {
 		$filter .= "&query=" . $search_string;
-	} 
+	}
 	if ($search_resource_type <> "") {
 		$filter .= "&format=" . $search_resource_type;
 		$formatFilter = $search_resource_type;
-	} 
+	}
 
 	// call API
 	$url = "https://knowledgenet.co/api/v0/search/datasets" . $filter;
@@ -105,9 +105,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 		CURLOPT_TIMEOUT => 30,
 		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 		CURLOPT_CUSTOMREQUEST => "GET",
-		CURLOPT_SSL_VERIFYHOST => 0,
 		CURLOPT_SSL_VERIFYPEER => 0,
-		CURLOPT_SSL_VERIFYPEER => false,
 		CURLOPT_SSL_VERIFYHOST => false
 	));
 
@@ -192,17 +190,17 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 			echo "<td>" . $ds['description'] . '</td>';
 			//echo "<td>" . $ds['issued'] . date_format(date($ds['issued'],"d/m/y")) . "</td>";
 			echo "<td>" . ($ds['issued'] ?? "---") . "</td>";
-			echo "<td>" . ($ds['publisher']['name'] ?? "---") . '</td>';		
+			echo "<td>" . ($ds['publisher']['name'] ?? "---") . '</td>';
 			echo "<td>" . $ds['catalog'] . "</td>";
 			echo "<td><table>";
-			
+
 			foreach ($ds['distributions'] as $resource) {
 				$listResource = true;		// check if non-matching resources are to be filtered out
 				// if ($formatFilter == true ) {
 				// 	if (strtoupper($resource['format']) <> strtoupper($resourceType)){
 				// 		$listResource = false;
 				// 	}
-				// } 
+				// }
 
 				if ($listResource == true) {
 					// some resources have accessURL, but all have downloadURLs, so use dowloadURLS and link the title
@@ -213,12 +211,12 @@ if (!isset($_POST['submit'])) { // if page is not submitted to itself echo the f
 					}
 					echo "<tr>";
 					echo "<td>" . $resource['format'] . "</td><td>" . $resourceTitle . "</td><td>" . ($resource['license']['name'] ?? "(no license") . "</td>";
-					echo "</tr>";	
+					echo "</tr>";
 				}
 
 			}
 			echo "</table></td>";
-			echo "<td><ul>"; 
+			echo "<td><ul>";
 			foreach ($ds['keywords'] as $keyword) {
 				echo "<li>" . $keyword . "</li>";
 			}

@@ -44,7 +44,7 @@ $CKAN_apis = $api_data['APIs'];
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	<style>
-		/*.badge-success, .badge-info {color: black;}*/
+		.bg-success, .bg-info, .bg-primary {color: black;}*/
 		.w-10 {width:10px;}
 		.w-30 {width:20px;}
 		.w-30 {width:30px;}
@@ -58,6 +58,7 @@ $CKAN_apis = $api_data['APIs'];
 		.w-150 {width:150px;}
 		.w-200 {width:200px;}
 		.w-250 {width:250px;}
+		td {margin: 2px;}
 	</style>
 	</head>
 
@@ -90,7 +91,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	            </div>
           	</div>
 			<div class="form-check">
-				<input type="checkbox" class="form-check-input" id="spreadsheet_format" name="spreadsheet_format"><br />
+				<input type="checkbox" class="form-check-input" id="spreadsheet_format" name="spreadsheet_format" checked><br />
 	            <label class="form-check-label" for="spreadsheet_format">Format abbreviated output for spreadsheet</label>
 	        </div>
 
@@ -130,7 +131,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	}
 
 	echo '<body>';
-	echo '"<h4 class="text-3xl font-bold">Query: ' . $search_string. ($_POST["search_tag"] ?? " | filtered for tag: " . $search_tag) . "</h4>";
+	echo '<h4 class="text-3xl font-bold">Query: ' . $search_string. ($_POST["search_tag"] ?? " | filtered for tag: " . $search_tag) . "</h4>";
 	echo '<h4 class="text-3xl font-bold" id="count">Working on it ....</h4>';
 
 	// First run query on Magda API
@@ -163,6 +164,10 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 	$data = json_decode($response, true);
 	$datasets = $data['dataSets'];
+
+	echo sizeof($datasets) . " results from data.gov.au" . "<br>";
+
+	// variables for overall result set from all queries
 	$count = 0;
 	$result_datasets = [];
 
@@ -180,9 +185,85 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		}
 		// if no keyword filter was specified OR if a kw filter was specified, and the keyword was present, then list current dataset
 		if ($use_tag_filter == false || $has_tag == true) {
-			$ds['api'] = '<span class="badge badge-success">Magda</span>';
+			$ds['api'] = '<span class="badge bg-success">Magda</span>';
 			$result_datasets[] = $ds;	// append this to results array so we know origin is data.gov.au when we query CKAN APIs later
 			$count+=1;
+		}
+	}
+
+// next query CSIRO Knowledge Network
+
+	$url = "https://knowledgenet.co/api/v0/search/datasets" . $filter;
+	$curl = curl_init();
+
+	$curl = curl_init();
+	curl_setopt_array($curl, array(
+		CURLOPT_URL => $url,
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_ENCODING => "",
+		CURLOPT_MAXREDIRS => 10,
+		CURLOPT_TIMEOUT => 30,
+		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		CURLOPT_CUSTOMREQUEST => "GET",
+		CURLOPT_SSL_VERIFYPEER => 0,
+		CURLOPT_SSL_VERIFYHOST => false
+	));
+
+	$response = curl_exec($curl);
+	$err = curl_error($curl);
+	curl_close($curl);
+
+	if ($err) {
+		echo "cURL Error #:" . $err;
+	} else {
+		 //echo response;	// for testing
+	}
+
+	$data = json_decode($response, true);
+	$datasets_csiro = $data['dataSets'];
+
+	echo sizeof($datasets_csiro) . " results from KN" . "<br>";
+
+	foreach ($datasets_csiro as $ds) {
+//		echo $ds['title'] . "<br>";
+//		echo "<hr>";
+
+		$has_tag = false;
+
+		if ($use_tag_filter) {
+			foreach ($ds['keywords'] as $tag) {
+				if (strpos(strtolower($tag), strtolower($search_tag)) !== false) {
+					$has_tag = true;	// have found case-insensitive match (including part of word)
+					break;
+				}
+			}
+		}
+
+		// if no keyword filter was specified OR if a kw filter was specified, and the keyword was present, then list current dataset
+		if (!$use_tag_filter || $has_tag) {
+			// if this dataset is a duplicate of one already found (by id partial match on id field), then update row, otherwise add this ds to the list
+			$add_current_ds = true;
+			$rds_idx = 0;
+
+			foreach ($result_datasets as $already_found) {
+				//echo strpos($already_found['identifier'], $ds['id']) . " -- <br>";
+
+				if (str_contains($already_found['identifier'], $ds['identifier'])) { // if the id of the curr CKAN ds is the same as one already in the list, don't add again.
+					$result_datasets[$rds_idx]['api'] = $result_datasets[$rds_idx]['api'] . ' <span class="badge bg-info">CSIRO KN</span>';
+					$add_current_ds = false;
+					break;
+				}
+
+				$rds_idx += 1;
+			}
+
+			if ($add_current_ds) {    // there is no entry for this dataset in magda (by id), so add it to the results array
+
+				$ds['api'] = '<span class="badge bg-info">CSIRO KN</span>';    // set api name
+
+				$result_datasets[] = $ds;    // append this KN entry to overall results array
+				$count += 1;
+			}
 		}
 	}
 
@@ -216,13 +297,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST => "GET",
 				CURLOPT_HTTPHEADER => array(
-				"Accept: */*",
-				"Accept-Encoding: gzip, deflate",
-				"Cache-Control: no-cache",
-				"Connection: keep-alive",
-				"Host: https://wovg-community.gateway.prod.api.vic.gov.au",
-				$api_key,
-				"cache-control: no-cache"
+					"Accept: */*",
+					"Accept-Encoding: gzip, deflate",
+					"Cache-Control: no-cache",
+					"Connection: keep-alive",
+					"Host: https://wovg-community.gateway.prod.api.vic.gov.au",
+					$api_key,
+					"cache-control: no-cache"
 				),
 				CURLOPT_SSL_VERIFYPEER => false,
 	  			CURLOPT_SSL_VERIFYHOST => false
@@ -256,16 +337,13 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		//$datasets = ($data['result']['results']);
 		$datasets = isset($data['result']['results']) ? $data['result']['results'] : [];
 
-// add in here call to csiro magda api
-
-
-
+		echo sizeof($datasets) . " results from ". $api['name'] . "<br>";
 
 		foreach ($datasets as $ds) {
 
 			$has_tag = false;
 
-			if ($use_tag_filter == true) {
+			if ($use_tag_filter) {
 				foreach ($ds['tags'] as $tag) {
 					if (strpos(strtolower($tag['name']), strtolower($search_tag)) !== false) {
 					    $has_tag = true;	// have found case-insensitive match (including part of word)
@@ -275,7 +353,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 			}
 
 			// if no keyword filter was specified OR if a kw filter was specified, and the keyword was present, then list current dataset
-			if ($use_tag_filter == false || $has_tag == true) {
+			if (!$use_tag_filter || $has_tag) {
 				// if this dataset is a duplicate of one already found (by id partial match on id field), then update row, otherwise add this ds to the list
 				$add_current_ds = true;
 				$rds_idx = 0;
@@ -284,9 +362,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 
 					//echo strpos($already_found['identifier'], $ds['id']) . " -- <br>";
 
-					if (strpos($already_found['identifier'], $ds['id']) !== false) { // if the id of the curr CKAN ds is the same as one already in the list, don't add again.
-						//echo $result_datasets[$rds_idx]['api'] . " .. + " . '<span class="badge badge-warning">' . $api["name"] .'</span>' . "<br>";
-						$result_datasets[$rds_idx]['api'] = $result_datasets[$rds_idx]['api'] . ' <span class="badge badge-primary">' . $api["name"] .'</span>';
+					if (str_contains($already_found['identifier'], $ds['id'])) { // if the id of the curr CKAN ds is the same as one already in the list, don't add again.
+						//echo $result_datasets[$rds_idx]['api'] . " .. + " . '<span class="badge bg-warning">' . $api["name"] .'</span>' . "<br>";
+						$result_datasets[$rds_idx]['api'] = $result_datasets[$rds_idx]['api'] . ' <span class="badge bg-primary">' . $api["name"] .'</span>';
 						$add_current_ds = false;
 						break;
 					}
@@ -294,11 +372,11 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 					$rds_idx +=1;
 				}
 
-				if ($add_current_ds == true) {	// there is no entry for this dataset in magda (by id), so add it to the results array
+				if ($add_current_ds) {	// there is no entry for this dataset in magda (by id), so add it to the results array
 
 					$CKAN_ds = [];	// mt array to assemble dataset detail for current CKAN dataset, so we can append that to total results array
 
-					$CKAN_ds['api'] = '<span class="badge badge-primary">' . $api["name"] .'</span>';	// mark ckan api name
+					$CKAN_ds['api'] = '<span class="badge bg-primary">' . $api["name"] .'</span>';	// mark ckan api name
 					$CKAN_ds['identifier'] = $ds['id'];
 					$CKAN_ds['title'] = $ds['title'];
 					$CKAN_ds['description'] = $ds['notes'];
@@ -360,8 +438,8 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 	// construct results table from $result_datasets array
 
 
-	echo '<div class=""><table id="search_results_table" class="table-fixed">';
-	echo '<thead class="bg-sky-500"><tr>';
+	echo '<div class=""><table id="search_results_table" class="table-fixed align-text-top">';
+	echo '<thead class="bg-sky-500"><tr class="border-bottom border-info">';
 	echo '<th class="w-20">API</th>';
 	echo '<th class="w-40">ID</th>';
 	echo '<th class="w-100">Title</th>';
@@ -408,15 +486,17 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		$kw = array();
 
 		if(isset($ds['keywords'])){
+			echo implode("<br>", $ds['keywords']);
 
-			$kw = array();
-
-			foreach ($ds['keywords'] as $keyword) {
-				$kw[] = ' <span class="badge badge-info">' . $keyword . "</span>";
-			}
-
-			echo implode("<br", $kw);
+//			$kw = array();
+//
+//			foreach ($ds['keywords'] as $keyword) {
+//				$kw[] = ' <span class="badge bg-info">' . $keyword . "</span>";
+//			}
+//
+//			echo implode("<br>", $kw);
 		}
+
 
 		echo "</td>";
 
