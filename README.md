@@ -1,7 +1,7 @@
 # datasearch
 Scripts for querying Australian public data APIs. These scripts were part of my PhD project, but I have used them for several other projects since then and have made them open source as they may be helpful to others. 
 
-Using PHP over Javascript (with fetch or axios) avoids CORS errors, as several of the APIs don't allow cross origin requests. Note that some of the scripts on the bottom of the page are a few years old now and probably need some work
+Using PHP over Javascript (with fetch or axios) avoids CORS errors, as several of the APIs don't allow cross origin requests. Note that some of the scripts on the bottom of the page are a few years old now and probably need some work. There is also a new directory with jupyter notebooks with examples.
 
 In future, I hope to update all the scripts and consolidate them. I may add the option to dump output as CSV. For the time being, I copy the html and paste it into a spreadsheet when I need to analyse the results further.
 
@@ -14,6 +14,12 @@ This is the latest and most complete search script. It run queries on data.gov.a
 ### ckan_apis.json
 JSON specification for the list of CKAN APIs to query by search_all.php - used by scripts querying all CKAN instances. 
 Name of API has to be unique, and needs a url and API key (note: key needed for VIC CKAN API). Will run without specifying API key, but will return result set without results for that API and will give no error. Note: search-all.php allows the use of a ckan_apis_local.json file which may contain private api keys. If this file is present, it will be used by the script, otherwise ckan_apis.json will be used. The local version of that file is excluded from the repo.
+
+## jupyter notebooks (directory)
+I have started adding notebooks to this directory as examples of using some of the APIs within python. Notebooks are a great way to convert json responses to dataframes and then create output in various formats such as csv in a few lines of code, and very useful to prototyping. 
+
+--------------------------
+## Older search scripts (some are in the progress of being updated)
 
 ### search_all.php
 Searches magda catalog first and then goes through CKAN instances. Marks madgda results and other sources(work in progress). Output is a html table of results. The form allows ticking a box that will format the output to produce a better spreadsheet without nested cells, and filters out duplicate distributions (and licence info).
