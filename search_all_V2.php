@@ -488,9 +488,9 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
 		if (isset($ds['landingPage'])) {
 
 			if ($spreadsheet_format == "on") {
-				echo "<a href=" . $ds['landingPage'] . "' class='btn btn-dark btn-sm'>Link</a>";
+				echo "<a href='" . $ds['landingPage'] . "' class='btn btn-dark btn-sm' target='_blank'>Link</a>";
 			} else {
-				echo "<a href='" . $ds['landingPage'] . "'>" . $ds['landingPage'] . "</a>";
+				echo "<a href='" . $ds['landingPage'] . "' target='_blank'>" . $ds['landingPage'] . "</a>";
 			}
 		}
 		echo "</td>";
