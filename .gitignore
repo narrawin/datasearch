@@ -5,3 +5,4 @@ superceded/
 /all_results.csv
 /ckan_apis_local.json
 /rda_api_local.json
+/jupyter notebooks/.ipynb_checkpoints/
