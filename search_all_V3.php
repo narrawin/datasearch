@@ -170,9 +170,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
     curl_close($curl);
 
     if ($err) {
-        echo "cURL Error #:" . $err;
-    } else {
-        // echo $response;	// for testing
+        echo "cURL Error #:" . $err. " encountered when processing: data.gov.au<br>";
     }
 
     $data = json_decode($response, true);
@@ -225,9 +223,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
     curl_close($curl);
 
     if ($err) {
-        echo "cURL Error #:" . $err;
-    } else {
-        //echo response;	// for testing
+        echo "cURL Error #:" . $err. " encountered when processing: KN API<br>";
     }
 
     $data = json_decode($response, true);
@@ -341,10 +337,7 @@ if (!isset($_POST['submit'])) { // if page is not submitted, show the form
         curl_close($curl);
 
         if ($err) {
-            echo "cURL Error #:" . $err;
-            echo "\n encountered when processing: " . $api_url;
-        } else {
-            // echo $response;	// for testing
+            echo "cURL Error #:" . $err. " encountered when processing: " . $api_url . "<br>";
         }
 
         $data = json_decode($response, true);
