@@ -8,7 +8,7 @@ In future, I hope to update all the scripts and consolidate them. I may add the 
 -------------------------
 ## Dataset search scripts and supporting files
 
-### search_all_V2.php
+### search_all_V3.php
 This is the latest and most complete search script. It run queries on data.gov.au, then the CSIRO Knowledgebase, and finally on all the CKAN catalogues listed in ckan_apis.json. It puts out the results in a table with improved (over the older scripts) formatting and layout. It checks for duplicate datasets based on ID and title (older scripts were by id alone). It shows the finds per repository and lists for each dataset found the repositories it was found in. 
 
 ### ckan_apis.json
@@ -20,6 +20,9 @@ I have started adding notebooks to this directory as examples of using some of t
 
 --------------------------
 ## Older search scripts (some are in the progress of being updated)
+
+### search_all_V2.php
+Now superceded by v3.
 
 ### search_all.php
 Searches magda catalog first and then goes through CKAN instances. Marks madgda results and other sources(work in progress). Output is a html table of results. The form allows ticking a box that will format the output to produce a better spreadsheet without nested cells, and filters out duplicate distributions (and licence info).
